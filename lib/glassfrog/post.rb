@@ -1,8 +1,9 @@
 module Post
-  attr_writer :client
+  attr_accessor :client
 
   class Request
     def initialize
+      @stack = []
     end
     def method_missing(meth, *args, &blk)
       

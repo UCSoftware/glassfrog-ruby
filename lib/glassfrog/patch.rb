@@ -1,7 +1,12 @@
 module Patch
-  attr_writer :client
+  attr_accessor :client
 
-  def method_missing(meth, *args, &blk)
-    
-  end  
+  class Request
+    def initialize
+      @stack = []
+    end
+    def method_missing(meth, *args, &blk)
+      
+    end
+  end
 end

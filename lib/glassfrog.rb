@@ -14,23 +14,23 @@ module Glassfrog
 
   class Client
     attr_reader :key, :cacheEnabled, :persistEnabled
-    
+
     def initialize(api_key, *options)
       @key, @cacheEnabled, @persistEnabled = 
-        api_key, options.include?('cache'), options.include?('persist')
+        api_key, options.include?(:cache), options.include?(:persist)
       Get.client = Post.client = Patch.client = Delete.client = self
     end
     def get(cache)
-      return Get::Request.new(cache)
+      Get::Request.new(cache)
     end
     def post
-      return Post::Request.new
+      Post::Request.new
     end
     def patch
-      return Patch::Request.new
+      Patch::Request.new
     end
     def delete
-      return Delete::Request.new
+      Delete::Request.new
     end
   end
 end
