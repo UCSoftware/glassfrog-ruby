@@ -1,5 +1,5 @@
-module Get
-  class Request
-
+module Glassfrog
+  module REST
+    
   end
 end

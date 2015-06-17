@@ -1,5 +1,5 @@
-module Delete
-  class Request
+module Glassfrog
+  module REST
 
   end
 end

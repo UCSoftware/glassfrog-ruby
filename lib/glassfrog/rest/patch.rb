@@ -1,5 +1,5 @@
-module Patch
-  class Request
-
+module Glassfrog
+  module REST
+    
   end
 end
