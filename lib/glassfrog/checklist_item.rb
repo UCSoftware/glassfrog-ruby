@@ -12,6 +12,7 @@ module Glassfrog
     def self.get(client, options)
       path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
       response = Glassfrog::REST::Get.get(client, path, options)
+      response['checklist_items'].map { |checklist_item| self.new(checklist_item) }
     end
 
     def self.post(client, options)
