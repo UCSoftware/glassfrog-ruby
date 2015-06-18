@@ -4,7 +4,7 @@ require 'http'
 module Glassfrog
   module REST
     class Request
-      ROOT_URL = 'https://glassfrog.holacracy.org/api/v3/'
+      ROOT_URL = 'https://glassfrog.holacracy.org/api/v3'
       attr_accessor :client, :headers, :options, :request_method, :uri
 
       def initialize(client, request_method, path, options={})
@@ -16,7 +16,7 @@ module Glassfrog
       end
 
       def perform
-        options_key = @request_method == :get ? :params : :form
+        options_key = @request_method == (:get || :patch) ? :params : :form
         response = HTTP.headers(@headers).accept(:json).public_send(@request_method, @uri.to_s, options_key => @options)
         response_body = symobolize_keys!(response.parse)
         response_headers = response.headers

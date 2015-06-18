@@ -10,6 +10,18 @@ module Glassfrog
       yield(self) if block_given?
     end
 
+    def get(type, options)
+    end
+
+    def post(type, options)
+    end
+
+    def patch(type, options)
+    end
+
+    def delete(type, options)
+    end
+
     def headers
       { 'X-Auth-Token': self.api_key }
     end
