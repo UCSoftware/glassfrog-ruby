@@ -1,18 +1,14 @@
+require 'glassfrog/base'
 require 'glassfrog/rest/get'
 
 module Glassfrog
-  class Action
-    attr_accessor :id, :description, :private_to_circle, :created_at, :links
+  class Action < Glassfrog::Base
+    attr_accessor :description, :private_to_circle, :created_at, :links
+    PATH = '/actions'
 
     def self.get(client, options)
-      response = Glassfrog::REST::Get.get(client, '/actions', options)
-    end
-
-    def initialize(attrs = {})
-      attrs.each do |key, value|
-        instance_variable_set("@#{key}", value);
-      end
-      yield(self) if block_given?
+      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
+      response = Glassfrog::REST::Get.get(client, path, options)
     end
   end
 end

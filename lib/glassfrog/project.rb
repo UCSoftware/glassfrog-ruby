@@ -1,34 +1,33 @@
+require 'glassfrog/base'
 require 'glassfrog/rest/get'
 require 'glassfrog/rest/post'
 require 'glassfrog/rest/patch'
 require 'glassfrog/rest/delete'
 
 module Glassfrog
-  class Project
-    attr_accessor :id, :description, :status, :link, :value, :effort, :roi, 
+  class Project < Glassfrog::Base
+    attr_accessor :description, :status, :link, :value, :effort, :roi, 
                   :private_to_circle, :created_at, :archived_at, :links
+    PATH = '/projects'
 
     def self.get(client, options)
-      response = Glassfrog::REST::Get.get(client, '/projects', options)
+      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
+      response = Glassfrog::REST::Get.get(client, path, options)
     end
 
     def self.post(client, options)
-      response = Glassfrog::REST::Post.post(client, '/projects', options)
+      path = PATH
+      response = Glassfrog::REST::Post.post(client, path, options)
     end
 
     def self.patch(client, options)
-      response = Glassfrog::REST::Patch.patch(client, '/projects', options)
+      path = PATH
+      response = Glassfrog::REST::Patch.patch(client, path, options)
     end
 
     def self.delete(client, options)
-      response = Glassfrog::REST::Delete.delete(client, '/projects', options)
-    end
-
-    def initialize(attrs = {})
-      attrs.each do |key, value|
-        instance_variable_set("@#{key}", value);
-      end
-      yield(self) if block_given?
+      path = PATH
+      response = Glassfrog::REST::Delete.delete(client, path, options)
     end
   end
 end

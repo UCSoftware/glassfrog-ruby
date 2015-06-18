@@ -1,45 +1,40 @@
 require 'addressable/uri'
 require 'http'
+require 'glassfrog/error'
+require 'glassfrog/utils/utils'
 
 module Glassfrog
   module REST
     class Request
-      ROOT_URL = 'https://glassfrog.holacracy.org/api/v3'
+      include Glassfrog::Utils
       attr_accessor :client, :headers, :options, :request_method, :uri
+      ROOT_URL = 'https://glassfrog.holacracy.org/api/v3'
 
       def initialize(client, request_method, path, options)
         @client = client
         @headers = client.headers
         @request_method = request_method
         @uri = Addressable::URI.parse(path.start_with?('http') ? path : ROOT_URL + path)
-        @options = symbolize_keys!(options)
+        @options = options
       end
 
       def perform
         options_key = @request_method == (:get || :patch) ? :params : :form
         response = HTTP.headers(@headers).accept(:json).public_send(@request_method, @uri.to_s, options_key => @options)
-        response_body = symbolize_keys!(response.parse)
-        response_headers = response.headers
-        fail_or_return_response_body(response.code, response_body, response_headers)
+        fail_or_return_response_body(response.code, response, response.headers)
       end
 
       private
 
-      def symbolize_keys!(object)
-        if object.is_a?(Array)
-          object.each_with_index do |val, index|
-            object[index] = symbolize_keys!(val)
-          end
-        elsif object.is_a?(Hash)
-          object.keys.each do |key|
-            object[key.to_sym] = symbolize_keys!(object.delete(key))
-          end
-        end
-        object
+      def fail_or_return_response_body(code, body, headers)
+        error = error(code, body, headers)
+        fail(error) if error
+        body.parse
       end
 
-      def fail_or_return_response_body(code, body, headers)
-        body
+      def error(code, body, headers)
+        klass = Glassfrog::Error::ERRORS[code]
+        klass.from_response(code, body, headers) if !klass.nil?
       end
     end
   end

@@ -1,3 +1,4 @@
+require 'glassfrog/utils/utils'
 require 'glassfrog/action'
 require 'glassfrog/checklist_item'
 require 'glassfrog/circle'
@@ -9,6 +10,7 @@ require 'glassfrog/trigger'
 
 module Glassfrog
   class Client
+    include Glassfrog::Utils
     attr_accessor :api_key
     attr_reader :caching, :unrelenting
 
@@ -34,7 +36,7 @@ module Glassfrog
       triggers: TYPES[:trigger]
     })
 
-    def initialize(attrs = {})
+    def initialize(attrs={})
       attrs.each do |key, value|
         instance_variable_set("@#{key}", value);
       end
@@ -42,6 +44,9 @@ module Glassfrog
     end
 
     def get(type, options={})
+      symbolize_keys!(options)
+      id = extract_id(options)
+      options = id ? { id: id } : options
       TYPES[type].public_send(:get, self, options)
     end
 
@@ -54,6 +59,9 @@ module Glassfrog
     end
 
     def delete(type, options={})
+      options.symbolize_keys!
+      id = extract_id(options)
+      options = id ? { id: id } : options
       TYPES[type].public_send(:delete, self, options)
     end
 
