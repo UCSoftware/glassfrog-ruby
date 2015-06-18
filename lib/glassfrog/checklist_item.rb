@@ -7,20 +7,20 @@ module Glassfrog
   class ChecklistItem
     attr_accessor :id, :description, :frequency, :global, :links
 
-    def self.get(options)
-      response = Glassfrog::REST::Get.get('/checklist_items', options)
+    def self.get(client, options)
+      response = Glassfrog::REST::Get.get(client, '/checklist_items', options)
     end
 
-    def self.post(options)
-      response = Glassfrog::REST::Post.post('/checklist_items', options)
+    def self.post(client, options)
+      response = Glassfrog::REST::Post.post(client, '/checklist_items', options)
     end
 
-    def self.patch(options)
-      response = Glassfrog::REST::Patch.patch('/checklist_items', options)
+    def self.patch(client, options)
+      response = Glassfrog::REST::Patch.patch(client, '/checklist_items', options)
     end
 
-    def self.delete(options)
-      response = Glassfrog::REST::Delete.delete('/checklist_items', options)
+    def self.delete(client, options)
+      response = Glassfrog::REST::Delete.delete(client, '/checklist_items', options)
     end
 
     def initialize(attrs = {})

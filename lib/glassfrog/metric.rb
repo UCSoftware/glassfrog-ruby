@@ -7,20 +7,20 @@ module Glassfrog
   class Metric
     attr_accessor :id, :description, :frequency, :global, :links
 
-    def self.get(options)
-      response = Glassfrog::REST::Get.get('/metrics', options)
+    def self.get(client, options)
+      response = Glassfrog::REST::Get.get(client, '/metrics', options)
     end
 
-    def self.post(options)
-      response = Glassfrog::REST::Post.post('/metrics', options)
+    def self.post(client, options)
+      response = Glassfrog::REST::Post.post(client, '/metrics', options)
     end
 
-    def self.patch(options)
-      response = Glassfrog::REST::Patch.patch('/metrics', options)
+    def self.patch(client, options)
+      response = Glassfrog::REST::Patch.patch(client, '/metrics', options)
     end
 
-    def self.delete(options)
-      response = Glassfrog::REST::Delete.delete('/metrics', options)
+    def self.delete(client, options)
+      response = Glassfrog::REST::Delete.delete(client, '/metrics', options)
     end
 
     def initialize(attrs = {})

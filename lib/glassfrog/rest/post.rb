@@ -3,8 +3,8 @@ require 'glassfrog/rest/request'
 module Glassfrog
   module REST
     module Post
-      def post(path, options)
-        Glassfrog::REST::Request.new(self, :post, path, options)
+      def self.post(client, path, options)
+        Glassfrog::REST::Request.new(client, :post, path, options)
       end
     end
   end

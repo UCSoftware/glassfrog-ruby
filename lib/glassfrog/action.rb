@@ -4,8 +4,8 @@ module Glassfrog
   class Action
     attr_accessor :id, :description, :private_to_circle, :created_at, :links
 
-    def self.get(options)
-      response = Glassfrog::REST::Get.get('/actions', options)
+    def self.get(client, options)
+      response = Glassfrog::REST::Get.get(client, '/actions', options)
     end
 
     def initialize(attrs = {})

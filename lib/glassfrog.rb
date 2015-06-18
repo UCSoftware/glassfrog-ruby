@@ -1,5 +1,2 @@
-require "glassfrog/version"
-
-module Glassfrog
-  
-end
+require 'glassfrog/version'
+require 'glassfrog/client'

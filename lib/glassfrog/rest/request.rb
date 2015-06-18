@@ -7,7 +7,7 @@ module Glassfrog
       ROOT_URL = 'https://glassfrog.holacracy.org/api/v3'
       attr_accessor :client, :headers, :options, :request_method, :uri
 
-      def initialize(client, request_method, path, options={})
+      def initialize(client, request_method, path, options)
         @client = client
         @headers = client.headers
         @request_method = request_method
@@ -18,7 +18,7 @@ module Glassfrog
       def perform
         options_key = @request_method == (:get || :patch) ? :params : :form
         response = HTTP.headers(@headers).accept(:json).public_send(@request_method, @uri.to_s, options_key => @options)
-        response_body = symobolize_keys!(response.parse)
+        response_body = symbolize_keys!(response.parse)
         response_headers = response.headers
         fail_or_return_response_body(response.code, response_body, response_headers)
       end
@@ -36,6 +36,10 @@ module Glassfrog
           end
         end
         object
+      end
+
+      def fail_or_return_response_body(code, body, headers)
+        body
       end
     end
   end

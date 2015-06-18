@@ -8,20 +8,20 @@ module Glassfrog
     attr_accessor :id, :description, :status, :link, :value, :effort, :roi, 
                   :private_to_circle, :created_at, :archived_at, :links
 
-    def self.get(options)
-      response = Glassfrog::REST::Get.get('/projects', options)
+    def self.get(client, options)
+      response = Glassfrog::REST::Get.get(client, '/projects', options)
     end
 
-    def self.post(options)
-      response = Glassfrog::REST::Post.post('/projects', options)
+    def self.post(client, options)
+      response = Glassfrog::REST::Post.post(client, '/projects', options)
     end
 
-    def self.patch(options)
-      response = Glassfrog::REST::Patch.patch('/projects', options)
+    def self.patch(client, options)
+      response = Glassfrog::REST::Patch.patch(client, '/projects', options)
     end
 
-    def self.delete(options)
-      response = Glassfrog::REST::Delete.delete('/projects', options)
+    def self.delete(client, options)
+      response = Glassfrog::REST::Delete.delete(client, '/projects', options)
     end
 
     def initialize(attrs = {})

@@ -4,8 +4,8 @@ module Glassfrog
   class Trigger
     attr_accessor :id, :description, :private_to_circle, :created_at, :links
 
-    def self.get(options)
-      response = Glassfrog::REST::Get.get('/triggers', options)
+    def self.get(client, options)
+      response = Glassfrog::REST::Get.get(client, '/triggers', options)
     end
 
     def initialize(attrs = {})

@@ -5,12 +5,12 @@ module Glassfrog
   class Role
     attr_accessor :id, :name, :purpose, :links
 
-    def self.get(options)
-      response = Glassfrog::REST::Get.get('/roles', options)
+    def self.get(client, options)
+      response = Glassfrog::REST::Get.get(client, '/roles', options)
     end
 
-    def self.patch(options)
-      response = Glassfrog::REST::Patch.patch('/roles', options)
+    def self.patch(client, options)
+      response = Glassfrog::REST::Patch.patch(client, '/roles', options)
     end
 
     def initialize(attrs = {})

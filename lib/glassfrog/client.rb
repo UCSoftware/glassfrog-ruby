@@ -1,7 +1,38 @@
+require 'glassfrog/action'
+require 'glassfrog/checklist_item'
+require 'glassfrog/circle'
+require 'glassfrog/metric'
+require 'glassfrog/person'
+require 'glassfrog/project'
+require 'glassfrog/role'
+require 'glassfrog/trigger'
+
 module Glassfrog
   class Client
     attr_accessor :api_key
     attr_reader :caching, :unrelenting
+
+    TYPES = {
+      action: Glassfrog::Action,
+      checklist_item: Glassfrog::ChecklistItem,
+      circle: Glassfrog::Circle,
+      metric: Glassfrog::Metric,
+      person: Glassfrog::Person,
+      projoct: Glassfrog::Project,
+      role: Glassfrog::Role,
+      trigger: Glassfrog::Trigger,
+    }
+
+    TYPES.merge!({
+      actions: TYPES[:action],
+      checklist_items: TYPES[:checklist_item],
+      circles: TYPES[:circle],
+      metrics: TYPES[:metric],
+      people: TYPES[:person],
+      projects: TYPES[:project],
+      roles: TYPES[:role],
+      triggers: TYPES[:trigger]
+    })
 
     def initialize(attrs = {})
       attrs.each do |key, value|
@@ -10,20 +41,24 @@ module Glassfrog
       yield(self) if block_given?
     end
 
-    def get(type, options)
+    def get(type, options={})
+      TYPES[type].public_send(:get, self, options)
     end
 
-    def post(type, options)
+    def post(type, options={})
+      TYPES[type].public_send(:post, self, options)
     end
 
-    def patch(type, options)
+    def patch(type, options={})
+      TYPES[type].public_send(:patch, self, options)
     end
 
-    def delete(type, options)
+    def delete(type, options={})
+      TYPES[type].public_send(:delete, self, options)
     end
 
     def headers
-      { 'X-Auth-Token': self.api_key }
+      { 'X-Auth-Token' => self.api_key }
     end
 
     def api_key?

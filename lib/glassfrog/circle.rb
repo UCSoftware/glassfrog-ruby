@@ -4,8 +4,8 @@ module Glassfrog
   class Circle
     attr_accessor :id, :name, :short_name, :strategy, :links
 
-    def self.get(options)
-      response = Glassfrog::REST::Get.get('/circles', options)
+    def self.get(client, options)
+      response = Glassfrog::REST::Get.get(client, '/circles', options)
     end
 
     def initialize(attrs = {})
