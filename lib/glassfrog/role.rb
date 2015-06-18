@@ -13,8 +13,9 @@ module Glassfrog
       response['roles'].map { |role| self.new(role) }
     end
 
-    def self.patch(client, options)
-      path = PATH
+    def self.patch(client, identifier, options)
+      path = PATH + '/' + identifier
+      options = options::Role ? options.hashify : options
       response = Glassfrog::REST::Patch.patch(client, path, options)
     end
   end

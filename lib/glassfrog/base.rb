@@ -8,5 +8,13 @@ module Glassfrog
       end
       yield(self) if block_given?
     end
+
+    private
+
+    def hashify
+      hash = {}
+      self.instance_variables.each { |var| hash[var.to_s.delete("@")] = gift.instance_variable_get(var) }
+      hash
+    end
   end
 end

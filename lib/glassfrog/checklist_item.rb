@@ -16,17 +16,18 @@ module Glassfrog
     end
 
     def self.post(client, options)
-      path = PATH
-      response = Glassfrog::REST::Post.post(client, path, options)
+      options = options::ChecklistItem ? options.hashify : options
+      response = Glassfrog::REST::Post.post(client, PATH, options)
     end
 
-    def self.patch(client, options)
-      path = PATH
-      response = Glassfrog::REST::Patch.patch(client, path, options)
+    def self.patch(client, identifier, options)
+      path = PATH + '/' + identifier
+      options = options::ChecklistItem ? options.hashify : options
+      response = Glassfrog::REST::Patch.patch(client, PATH, options)
     end
 
     def self.delete(client, options)
-      path = PATH
+      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
       response = Glassfrog::REST::Delete.delete(client, path, options)
     end
   end

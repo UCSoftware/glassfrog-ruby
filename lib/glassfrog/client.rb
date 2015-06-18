@@ -52,8 +52,9 @@ module Glassfrog
       TYPES[type].public_send(:post, self, options)
     end
 
-    def patch(type, options={})
-      TYPES[type].public_send(:patch, self, options)
+    def patch(type, identifier, options={})
+      identifier = parse_params(identifier)
+      TYPES[type].public_send(:patch, self, identifier, options)
     end
 
     def delete(type, options={})
