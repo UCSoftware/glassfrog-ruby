@@ -72,8 +72,7 @@ module Glassfrog
     private
 
     def parse_params(options)
-      options.symbolize_keys!
-      id = extract_id(options)
+      id = extract_id(symbolize_keys!(options))
       id ? { id: id } : options
     end
   end
