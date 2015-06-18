@@ -1,6 +1,6 @@
 module Glassfrog
   class ChecklistItem
-    attr_accessor :id, :description, :frequency, :global, :links
+    attr_accessor :id, :name, :email, :external_id, :links
 
     def initialize(attrs = {})
       attrs.each do |key, value|

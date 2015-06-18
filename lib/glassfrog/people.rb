@@ -1,5 +1,5 @@
 module Glassfrog
-  class ChecklistItem
+  class Person
     attr_accessor :id, :name, :email, :external_id, :links
 
     def initialize(attrs = {})
