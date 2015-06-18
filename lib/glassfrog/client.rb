@@ -44,9 +44,7 @@ module Glassfrog
     end
 
     def get(type, options={})
-      symbolize_keys!(options)
-      id = extract_id(options)
-      options = id ? { id: id } : options
+      options = parse_params(options)
       TYPES[type].public_send(:get, self, options)
     end
 
@@ -59,9 +57,7 @@ module Glassfrog
     end
 
     def delete(type, options={})
-      options.symbolize_keys!
-      id = extract_id(options)
-      options = id ? { id: id } : options
+      options = parse_params(options)
       TYPES[type].public_send(:delete, self, options)
     end
 
@@ -71,6 +67,14 @@ module Glassfrog
 
     def api_key?
       !!(api_key)
+    end
+
+    private
+
+    def parse_params(options)
+      options.symbolize_keys!
+      id = extract_id(options)
+      id ? { id: id } : options
     end
   end
 end
