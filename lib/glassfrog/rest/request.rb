@@ -20,7 +20,7 @@ module Glassfrog
 
       def perform
         options_key = @request_method == (:get || :patch) ? :params : :form
-        response = HTTP.headers(@headers).accept(:json).public_send(@request_method, @uri.to_s, options_key => @options)
+        response = HTTP.headers(@headers).public_send(@request_method, @uri.to_s, options_key => @options)
         fail_or_return_response_body(response.code, response, response.headers)
       end
 

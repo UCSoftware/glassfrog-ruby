@@ -20,7 +20,7 @@ module Glassfrog
       circle: Glassfrog::Circle,
       metric: Glassfrog::Metric,
       person: Glassfrog::Person,
-      projoct: Glassfrog::Project,
+      project: Glassfrog::Project,
       role: Glassfrog::Role,
       trigger: Glassfrog::Trigger,
     }
@@ -36,6 +36,36 @@ module Glassfrog
       triggers: TYPES[:trigger]
     })
 
+    ASSOCIATED_PARAMS = {
+      Glassfrog::Role => {
+        Glassfrog::Circle => [:circle_id, :id],
+        Glassfrog::Person => [:person_id, :id] 
+        },
+      Glassfrog::Person => {
+        Glassfrog::Circle => [:circle_id, :id],
+        Glassfrog::Role => [:role, :name]
+        },
+      Glassfrog::Project => {
+        Glassfrog::Circle => [:circle_id, :id],
+        Glassfrog::Person => [:person_id, :id]
+        },
+      Glassfrog::Metric => {
+        Glassfrog::Circle => [:circle_id, :id],
+         Glassfrog::Role => [:role_id, :id]
+         },
+      Glassfrog::ChecklistItem => {
+        Glassfrog::Circle => [:circle_id, :id]
+        },
+      Glassfrog::Action => {
+        Glassfrog::Person => [:person_id, :id],
+        Glassfrog::Circle => [:circle_id, :id]
+        },
+      Glassfrog::Trigger => {
+        Glassfrog::Person => [:person_id, :id],
+        Glassfrog::Circle => [:circle_id, :id]
+      }
+    }
+
     def initialize(attrs={})
       attrs.each do |key, value|
         instance_variable_set("@#{key}", value);
@@ -44,22 +74,29 @@ module Glassfrog
     end
 
     def get(type, options={})
-      options = parse_params(options)
-      TYPES[type].public_send(:get, self, options)
+      klass = TYPES[type.to_sym]
+      options = parse_params(klass, options)
+      klass.public_send(:get, self, options)
     end
 
+    # TO REVIEW
     def post(type, options={})
-      TYPES[type].public_send(:post, self, options)
+      klass = TYPES[type.to_sym]
+      klass.public_send(:post, self, options)
     end
 
+    # TO REVIEW
     def patch(type, identifier, options={})
-      identifier = parse_params(identifier)
-      TYPES[type].public_send(:patch, self, identifier, options)
+      klass = TYPES[type.to_sym]
+      identifier = parse_params(klass, identifier)
+      klass.public_send(:patch, self, identifier, options)
     end
 
+    # TO REVIEW
     def delete(type, options={})
-      options = parse_params(options)
-      TYPES[type].public_send(:delete, self, options)
+      klass = TYPES[type.to_sym]
+      options = parse_params(klass, options)
+      klass.public_send(:delete, self, options)
     end
 
     def headers
@@ -72,9 +109,16 @@ module Glassfrog
 
     private
 
-    def parse_params(options)
-      id = extract_id(symbolize_keys!(options))
+    def parse_params(klass, options)
+      symbolized_options = symbolize_keys(options)
+      id = extract_id(klass, symbolized_options)
+      options = id ? symbolized_options : parse_associated_params(klass, symbolized_options)
       id ? { id: id } : options
+    end
+
+    def parse_associated_params(klass, object)
+      associated_param = ASSOCIATED_PARAMS[klass]
+      associated_param ? { associated_param[object.class][0] => object.public_send(associated_param[object.class][1]) } : object
     end
   end
 end

@@ -2,7 +2,7 @@ require 'glassfrog/base'
 
 module Glassfrog
   module Utils
-    def symbolize_keys!(object)
+    def symbolize_keys(object)
       if object.is_a?(Array)
         object.each_with_index do |val, index|
           object[index] = symbolize_keys!(val)
@@ -15,17 +15,17 @@ module Glassfrog
       object
     end
 
-    def extract_id(object)
+    def extract_id(klass, object)
       case object
       when ::Integer
         object
       when ::String
         object.split('/').last.to_i
       when ::Hash
-        object[:id]
+        object[:id] || object[:ID]
       when URI, Addressable::URI
         object.path.split('/').last.to_i
-      when Glassfrog::Base
+      when klass
         object.id
       else
         nil

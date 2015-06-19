@@ -4,40 +4,28 @@ module Glassfrog
 
     # Raised with a 4xx HTTP status code
     ClientError = Class.new(self)
-
     # Raised with the HTTP status code 400
     BadRequest = Class.new(ClientError)
-
     # Raised with the HTTP status code 401
     Unauthorized = Class.new(ClientError)
-
     # Raised with the HTTP status code 403
     Forbidden = Class.new(ClientError)
-
     # Raised with the HTTP status code 404
     NotFound = Class.new(ClientError)
-
     # Raised with the HTTP status code 406
     NotAcceptable = Class.new(ClientError)
-
     # Raised with the HTTP status code 422
     UnprocessableEntity = Class.new(ClientError)
-
     # Raised with the HTTP status code 429
     TooManyRequests = Class.new(ClientError)
-
     # Raised with a 5xx HTTP status code
     ServerError = Class.new(self)
-
     # Raised with the HTTP status code 500
     InternalServerError = Class.new(ServerError)
-
     # Raised with the HTTP status code 502
     BadGateway = Class.new(ServerError)
-
     # Raised with the HTTP status code 503
     ServiceUnavailable = Class.new(ServerError)
-
     # Raised with the HTTP status code 504
     GatewayTimeout = Class.new(ServerError)
 

@@ -12,7 +12,7 @@ module Glassfrog
     private
 
     def hashify
-      hash = {}
+      hash = Hash.new
       self.instance_variables.each { |var| hash[var.to_s.delete("@")] = gift.instance_variable_get(var) }
       hash
     end
