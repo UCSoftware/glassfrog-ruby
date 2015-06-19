@@ -75,7 +75,7 @@ module Glassfrog
 
     def get(type, options={})
       klass = TYPES[type.to_sym]
-      options = parse_params(klass, options)
+      options = parse_params(options, klass)
       klass.public_send(:get, self, options)
     end
 
@@ -95,7 +95,7 @@ module Glassfrog
     # TO REVIEW
     def delete(type, options={})
       klass = TYPES[type.to_sym]
-      options = parse_params(klass, options)
+      options = parse_params(options, klass)
       klass.public_send(:delete, self, options)
     end
 
@@ -109,14 +109,14 @@ module Glassfrog
 
     private
 
-    def parse_params(klass, options)
-      symbolized_options = symbolize_keys(options)
-      id = extract_id(klass, symbolized_options)
-      options = id ? symbolized_options : parse_associated_params(klass, symbolized_options)
+    def parse_params(options, klass=nil)
+      options = symbolize_keys(options)
+      id = extract_id(options, klass)
+      options = parse_associated_params(options, klass) unless id
       id ? { id: id } : options
     end
 
-    def parse_associated_params(klass, object)
+    def parse_associated_params(object, klass=nil)
       associated_param = ASSOCIATED_PARAMS[klass]
       associated_param ? { associated_param[object.class][0] => object.public_send(associated_param[object.class][1]) } : object
     end

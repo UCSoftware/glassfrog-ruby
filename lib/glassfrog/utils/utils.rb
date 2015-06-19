@@ -15,7 +15,8 @@ module Glassfrog
       object
     end
 
-    def extract_id(klass, object)
+    def extract_id(object, klass=nil)
+      type = klass || Glassfrog::Base
       case object
       when ::Integer
         object
@@ -25,7 +26,7 @@ module Glassfrog
         object[:id] || object[:ID]
       when URI, Addressable::URI
         object.path.split('/').last.to_i
-      when klass
+      when type
         object.id
       else
         nil
