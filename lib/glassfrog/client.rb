@@ -67,8 +67,12 @@ module Glassfrog
     }
 
     def initialize(attrs={})
-      attrs.each do |key, value|
-        instance_variable_set("@#{key}", value);
+      if attrs.class == String
+        @api_key = attrs
+      else
+        attrs.each do |key, value|
+          instance_variable_set("@#{key}", value);
+        end
       end
       yield(self) if block_given?
     end
@@ -117,7 +121,7 @@ module Glassfrog
     end
 
     def parse_associated_params(object, klass=nil)
-      associated_param = ASSOCIATED_PARAMS[klass]
+      associated_param = ASSOCIATED_PARAMS[klass] ? ASSOCIATED_PARAMS[klass][object.class] : nil
       associated_param ? { associated_param[object.class][0] => object.public_send(associated_param[object.class][1]) } : object
     end
   end
