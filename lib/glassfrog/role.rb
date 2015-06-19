@@ -15,7 +15,7 @@ module Glassfrog
 
     def self.patch(client, identifier, options)
       path = PATH + '/' + identifier
-      options = options::Role ? options.hashify : options
+      options = options.is_a? Glassfrog::Role ? options.hashify : options
       response = Glassfrog::REST::Patch.patch(client, path, options)
     end
   end

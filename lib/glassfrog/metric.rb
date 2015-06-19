@@ -16,13 +16,15 @@ module Glassfrog
     end
 
     def self.post(client, options)
-      options = options::Metric ? options.hashify : options
+      options = options.is_a? Glassfrog::Metric ? options.hashify : options
+      options = { metrics: [ options ] }.to_json
       response = Glassfrog::REST::Post.post(client, PATH, options)
     end
 
     def self.patch(client, identifier, options)
       path = PATH + '/' + identifier
-      options = options::Metric ? options.hashify : options
+      options = options.is_a? Glassfrog::Metric ? options.hashify : options
+      options = formify(options)
       response = Glassfrog::REST::Patch.patch(client, path, options)
     end
 

@@ -16,13 +16,15 @@ module Glassfrog
     end
 
     def self.post(client, options)
-      options = options::ChecklistItem ? options.hashify : options
+      options = options.is_a? Glassfrog::ChecklistItem ? options.hashify : options
+      options = { checklist_items: [ options ] }.to_json
       response = Glassfrog::REST::Post.post(client, PATH, options)
     end
 
     def self.patch(client, identifier, options)
       path = PATH + '/' + identifier
-      options = options::ChecklistItem ? options.hashify : options
+      options = options.is_a? Glassfrog::ChecklistItem ? options.hashify : options
+      options = formify(options)
       response = Glassfrog::REST::Patch.patch(client, PATH, options)
     end
 

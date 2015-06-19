@@ -83,20 +83,20 @@ module Glassfrog
       klass.public_send(:get, self, options)
     end
 
-    # TO REVIEW
+    # TO TEST
     def post(type, options={})
       klass = TYPES[type.to_sym]
       klass.public_send(:post, self, options)
     end
 
-    # TO REVIEW
+    # TO TEST
     def patch(type, identifier, options={})
       klass = TYPES[type.to_sym]
       identifier = parse_params(klass, identifier)
       klass.public_send(:patch, self, identifier, options)
     end
 
-    # TO REVIEW
+    # TO TEST
     def delete(type, options={})
       klass = TYPES[type.to_sym]
       options = parse_params(options, klass)

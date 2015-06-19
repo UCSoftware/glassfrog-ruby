@@ -1,3 +1,4 @@
+require 'json'
 require 'glassfrog/rest/request'
 
 module Glassfrog
