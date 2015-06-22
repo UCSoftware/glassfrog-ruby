@@ -29,7 +29,7 @@ module Glassfrog
       def fail_or_return_response_body(code, body, headers)
         error = error(code, body, headers)
         fail(error) if error
-        body.parse
+        symbolize_keys(body.parse)
       end
 
       def error(code, body, headers)

@@ -9,7 +9,7 @@ module Glassfrog
     def self.get(client, options)
       path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
       response = Glassfrog::REST::Get.get(client, path, options)
-      response['circles'].map { |circle| self.new(circle) }
+      response[:circles].map { |circle| self.new(circle) }
     end
   end
 end

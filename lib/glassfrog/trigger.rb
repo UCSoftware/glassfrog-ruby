@@ -7,9 +7,13 @@ module Glassfrog
     PATH = '/triggers'
 
     def self.get(client, options)
-      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
-      response = Glassfrog::REST::Get.get(client, path, options)
-      response['triggers'].map { |trigger| self.new(trigger) }
+      if options[:id]
+        response = Glassfrog::REST::Get.get(client, PATH, {})
+        if response[:triggers] then response[:triggers].select! { |trigger| trigger[:id] == options[:id] } end
+      else 
+        response = Glassfrog::REST::Get.get(client, PATH, options)
+      end
+      response[:triggers] ? response[:triggers].map { |trigger| self.new(trigger) } : []
     end
   end
 end

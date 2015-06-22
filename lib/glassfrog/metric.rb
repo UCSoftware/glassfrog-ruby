@@ -10,9 +10,13 @@ module Glassfrog
     PATH = '/metrics'
 
     def self.get(client, options)
-      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
-      response = Glassfrog::REST::Get.get(client, path, options)
-      response['metrics'].map { |metric| self.new(metric) }
+      if options[:id]
+        response = Glassfrog::REST::Get.get(client, PATH, {})
+        if response[:metrics] then response[:metrics].select! { |metric| metric[:id] == options[:id] } end
+      else 
+        response = Glassfrog::REST::Get.get(client, PATH, options)
+      end
+      response[:metrics] ? response[:metrics].map { |metric| self.new(metric) } : []
     end
 
     def self.post(client, options)

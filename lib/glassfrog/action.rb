@@ -7,9 +7,13 @@ module Glassfrog
     PATH = '/actions'
 
     def self.get(client, options)
-      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
-      response = Glassfrog::REST::Get.get(client, path, options)
-      response['actions'].map { |action| self.new(action) }
+      if options[:id]
+        response = Glassfrog::REST::Get.get(client, PATH, {})
+        if response[:actions] then response[:actions].select! { |action| action[:id] == options[:id] } end
+      else 
+        response = Glassfrog::REST::Get.get(client, PATH, options)
+      end
+      response[:actions] ? response[:actions].map { |action| self.new(action) } : []
     end
   end
 end
