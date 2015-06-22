@@ -9,6 +9,10 @@ module Glassfrog
       yield(self) if block_given?
     end
 
+    def ==(other)
+      self.id == other.id && self.class == other.class
+    end
+
     private
 
     def hashify
