@@ -60,7 +60,7 @@ describe Glassfrog::Person do
       expect(array_of_people).to all(be_a(Glassfrog::Person))
     end
     it 'returns array of person item objects with role in hash as options' do
-      array_of_people = @client.get :person, { role: @role.name.to_s.downcase.tr(" ", "_").to_sym }
+      array_of_people = @client.get :person, { role: @role.name_parameterized }
       expect(array_of_people).to all(be_a(Glassfrog::Person))
     end
 

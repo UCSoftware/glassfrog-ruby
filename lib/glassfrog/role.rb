@@ -1,9 +1,11 @@
+require 'glassfrog/utils/utils'
 require 'glassfrog/base'
 require 'glassfrog/rest/get'
 require 'glassfrog/rest/patch'
 
 module Glassfrog
   class Role < Glassfrog::Base
+    include Glassfrog::Utils
     attr_accessor :name, :purpose, :links
     PATH = '/roles'
 
@@ -18,6 +20,10 @@ module Glassfrog
       path = PATH + '/' + identifier
       options = options.is_a? Glassfrog::Role ? options.hashify : options
       response = Glassfrog::REST::Patch.patch(client, path, options)
+    end
+
+    def name_parameterized
+      parameterize(@name)
     end
   end
 end
