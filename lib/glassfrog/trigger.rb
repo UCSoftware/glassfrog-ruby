@@ -7,7 +7,8 @@ module Glassfrog
     PATH = '/triggers'
 
     def self.get(client, options)
-      if options[:id]
+      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
+      if options.is_a?(Hash) && options[:id]
         response = Glassfrog::REST::Get.get(client, PATH, {})
         if response[:triggers] then response[:triggers].select! { |trigger| trigger[:id] == options[:id] } end
       else 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Glassfrog::Action do
-  before do
+  before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
     @action = @client.get(:actions).sample
     @person = @client.get(:people).sample
@@ -49,7 +49,7 @@ describe Glassfrog::Action do
       expect(array_of_actions).to all(be_a(Glassfrog::Action))
     end
     it 'returns array of action objects with person_id in hash as options' do
-      array_of_actions = @client.get :action, { person_id: @peson.id }
+      array_of_actions = @client.get :action, { person_id: @person.id }
       expect(array_of_actions).to all(be_a(Glassfrog::Action))
     end
     it 'returns array of action objects with circle object as options' do
@@ -67,13 +67,10 @@ describe Glassfrog::Action do
     end
 
     it 'raises error with unassociated object as options' do
-      expect { @client.get :action, Glassfrog::Metric.new }.to raise_error
+      expect { @client.get :action, Glassfrog::Metric.new }.to raise_error(ArgumentError)
     end
     it 'raises error with invalid type as options' do
-      expect { @client.get :action, true }.to raise_error
-    end
-    it 'raises error with invalid hash as options' do
-      expect { @client.get :action, {} }.to raise_error
+      expect { @client.get :action, true }.to raise_error(ArgumentError)
     end
   end
 end

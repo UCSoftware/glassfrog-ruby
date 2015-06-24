@@ -8,6 +8,7 @@ module Glassfrog
     PATH = '/roles'
 
     def self.get(client, options)
+      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
       path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
       response = Glassfrog::REST::Get.get(client, path, options)
       response[:roles].map { |role| self.new(role) }

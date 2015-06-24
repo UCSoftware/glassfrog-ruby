@@ -51,8 +51,8 @@ module Glassfrog
         },
       Glassfrog::Metric => {
         Glassfrog::Circle => [:circle_id, :id],
-         Glassfrog::Role => [:role_id, :id]
-         },
+        Glassfrog::Role => [:role_id, :id]
+        },
       Glassfrog::ChecklistItem => {
         Glassfrog::Circle => [:circle_id, :id]
         },
@@ -78,24 +78,24 @@ module Glassfrog
     end
 
     def get(type, options={})
-      klass = TYPES[type.to_sym]
+      klass = TYPES[parameterize(type)]
       options = parse_params(options, klass)
       klass.public_send(:get, self, options)
     end
 
     def post(type, options={})
-      klass = TYPES[type.to_sym]
+      klass = TYPES[parameterize(type)]
       klass.public_send(:post, self, options)
     end
 
     def patch(type, identifier, options={})
-      klass = TYPES[type.to_sym]
+      klass = TYPES[parameterize(type)]
       identifier = parse_params(klass, identifier)
       klass.public_send(:patch, self, identifier, options)
     end
 
     def delete(type, options={})
-      klass = TYPES[type.to_sym]
+      klass = TYPES[parameterize(type)]
       options = parse_params(options, klass)
       klass.public_send(:delete, self, options)
     end
@@ -110,16 +110,27 @@ module Glassfrog
 
     private
 
-    def parse_params(options, klass=nil)
+    def parse_params(options, klass)
       options = symbolize_keys(options)
       id = extract_id(options, klass)
-      options = parse_associated_params(options, klass) unless id
-      id ? { id: id } : options
+      params = id ? { id: id } : parse_associated_params(options, klass)
+      validate_params(params, klass)
     end
 
-    def parse_associated_params(object, klass=nil)
-      associated_param = ASSOCIATED_PARAMS[klass] ? ASSOCIATED_PARAMS[klass][object.class] : nil
-      associated_param ? { associated_param[object.class][0] => object.public_send(associated_param[object.class][1]) } : object
+    def parse_associated_params(options, klass)
+      associated_param = ASSOCIATED_PARAMS[klass] && ASSOCIATED_PARAMS[klass][options.class] ? ASSOCIATED_PARAMS[klass][options.class] : nil
+      if associated_param
+        key, method = associated_param
+        method == :name ? { key => parameterize(options.public_send(method)) } : { key => options.public_send(method) }
+      else 
+        options
+      end
+    end
+
+    def validate_params(params, klass)
+      raise(ArgumentError, "options can't be " + params.class.name) unless params.is_a?(klass) || params.is_a?(Hash) || 
+        (ASSOCIATED_PARAMS[klass] && ASSOCIATED_PARAMS[klass].keys.include?(params.class))
+      params
     end
   end
 end

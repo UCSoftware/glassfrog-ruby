@@ -2,6 +2,10 @@ require 'glassfrog/base'
 
 module Glassfrog
   module Utils
+    def parameterize(value)
+      value.to_s.downcase.tr(" ", "_").to_sym
+    end
+
     def symbolize_keys(object)
       if object.is_a?(Array)
         object.each_with_index do |val, index|
@@ -15,7 +19,7 @@ module Glassfrog
       object
     end
 
-    def extract_id(object, klass=nil)
+    def extract_id(object, klass)
       type = klass || Glassfrog::Base
       case object
       when ::Integer
