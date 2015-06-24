@@ -21,9 +21,9 @@ module Glassfrog
     end
 
     def self.post(client, options)
-      options = options.is_a? Glassfrog::ChecklistItem ? options.hashify : options
-      options = { checklist_items: [ options ] }.to_json
-      response = Glassfrog::REST::Post.post(client, PATH, options)
+      options = options.is_a?(Glassfrog::ChecklistItem) ? options.hashify : options
+      response = Glassfrog::REST::Post.post(client, PATH, parse_options(options))
+      response[:checklist_items] ? response[:checklist_items].map { |checklist_item| self.new(checklist_item) } : []
     end
 
     def self.patch(client, identifier, options)
@@ -36,6 +36,24 @@ module Glassfrog
     def self.delete(client, options)
       path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
       response = Glassfrog::REST::Delete.delete(client, path, options)
+    end
+
+    private
+
+    PARAMS = [
+      :description,
+      :frequency,
+      :global,
+      :circle_id,
+      :role_id
+    ]
+
+    def self.parse_options(options)
+      options[:circle_id] = options[:links][:circle] if options[:links] && options[:links][:circle]
+      options[:role_id] = options[:links][:role] if options[:links] && options[:links][:role]
+      params_hash = Hash.new
+      PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
+      { checklist_items: [params_hash] }
     end
   end
 end

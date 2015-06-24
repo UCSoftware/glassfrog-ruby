@@ -3,12 +3,15 @@ require 'spec_helper'
 describe Glassfrog::Metric do
   before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
-    @metric = @client.get(:metrics).sample
-    @role = @client.get(:role).sample
-    @circle = @client.get(:circles).sample
   end
 
   describe '#get' do
+    before do
+      @metric = @client.get(:metrics).sample
+      @role = @client.get(:role).sample
+      @circle = @client.get(:circles).sample
+    end
+
     it 'returns array of metric item objects with singular symbol as type' do
       array_of_metrics = @client.get :metric
       expect(array_of_metrics).to all(be_a(Glassfrog::Metric))
@@ -72,6 +75,32 @@ describe Glassfrog::Metric do
     end
     it 'raises error with invalid type as options' do
       expect { @client.get :metric, true }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#post' do
+    before do
+      @new_metric_hash = {
+        id: rand(10000),
+        description: 'Test Metric',
+        frequency: 'Weekly',
+        global: false,
+        link: 'http://undercurrent.com',
+        role_name: nil,
+        links: {
+          circle: 4772, 
+          role: 73198
+        }
+      }
+      @new_metric_object = Glassfrog::Metric.new(@new_metric_hash)
+    end
+    it 'creates a new metric object on GlassFrog with hash as options and returns this new object' do
+      array_of_metrics = @client.post :metric, @new_metric_hash
+      expect(array_of_metrics).to all(be_a(Glassfrog::Metric))
+    end
+    it 'creates a new metric object on GlassFrog with a checklist item object as options and returns this new object' do
+      array_of_metrics = @client.post :metric, @new_metric_object
+      expect(array_of_metrics).to all(be_a(Glassfrog::Metric))
     end
   end
 end

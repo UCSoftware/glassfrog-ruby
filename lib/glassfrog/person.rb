@@ -17,9 +17,9 @@ module Glassfrog
     end
 
     def self.post(client, options)
-      options = options.is_a? Glassfrog::Person ? options.hashify : options
-      options = { people: [ options ] }.to_json
-      response = Glassfrog::REST::Post.post(client, PATH, options)
+      options = options.is_a?(Glassfrog::Person) ? options.hashify : options
+      response = Glassfrog::REST::Post.post(client, PATH, parse_options(options))
+      response[:people].map { |person| self.new(person) }
     end
 
     def self.patch(client, identifier, options)
@@ -32,6 +32,19 @@ module Glassfrog
     def self.delete(client, options)
       path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
       response = Glassfrog::REST::Delete.delete(client, path, options)
+    end
+
+    private
+
+    PARAMS = [
+      :name,
+      :email
+    ]
+
+    def self.parse_options(options)
+      params_hash = Hash.new
+      PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
+      { people: [params_hash] }
     end
   end
 end

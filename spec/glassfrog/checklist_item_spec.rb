@@ -3,11 +3,14 @@ require 'spec_helper'
 describe Glassfrog::ChecklistItem do
   before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
-    @checklist_item = @client.get(:checklist_items).sample
-    @circle = @client.get(:circles).sample
   end
 
   describe '#get' do
+    before do
+      @checklist_item = @client.get(:checklist_items).sample
+      @circle = @client.get(:circles).sample
+    end
+
     it 'returns array of checklist item objects with singular symbol as type' do
       array_of_checklist_items = @client.get :checklist_items
       expect(array_of_checklist_items).to all(be_a(Glassfrog::ChecklistItem))
@@ -62,6 +65,30 @@ describe Glassfrog::ChecklistItem do
     end
     it 'raises error with invalid type as options' do
       expect { @client.get :checklist_items, true }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#post' do
+    before do
+      @new_checklist_item_hash = {
+        id: rand(10000),
+        description: 'Test Checklist Item',
+        frequency: 'Weekly',
+        global: false,
+        links: {
+          circle: 4772, 
+          role: 73198
+        }
+      }
+      @new_checklist_item_object = Glassfrog::ChecklistItem.new(@new_checklist_item_hash)
+    end
+    it 'creates a new checklist item object on GlassFrog with hash as options and returns this new object' do
+      array_of_checklist_items = @client.post :checklist_items, @new_checklist_item_hash
+      expect(array_of_checklist_items).to all(be_a(Glassfrog::ChecklistItem))
+    end
+    it 'creates a new checklist item object on GlassFrog with a checklist item object as options and returns this new object' do
+      array_of_checklist_items = @client.post :checklist_items, @new_checklist_item_object
+      expect(array_of_checklist_items).to all(be_a(Glassfrog::ChecklistItem))
     end
   end
 end

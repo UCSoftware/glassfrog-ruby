@@ -19,7 +19,6 @@ module Glassfrog
 
     def self.post(client, options)
       options = options.is_a? Glassfrog::Project ? options.hashify : options
-      options = { projects: [ options ] }.to_json
       response = Glassfrog::REST::Post.post(client, PATH, options)
     end
 
@@ -33,6 +32,32 @@ module Glassfrog
     def self.delete(client, options)
       path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
       response = Glassfrog::REST::Delete.delete(client, path, options)
+    end
+
+    private
+
+    PARAMS = [
+      :description,
+      :status,
+      :link,
+      :value,
+      :effort,
+      :roi,
+      :private_to_circle,
+      :created_at,
+      :archived_at,
+      :circle_id,
+      :role_id,
+      :person_id
+    ]
+
+    def self.parse_options(options)
+      options[:circle_id] = options[:links][:circle] if options[:links] && options[:links][:circle]
+      options[:role_id] = options[:links][:role] if options[:links] && options[:links][:role]
+      options[:person_id] = options[:links][:person] if options[:links] && options[:links][:person]
+      params_hash = Hash.new
+      PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
+      { people: [params_hash] }
     end
   end
 end

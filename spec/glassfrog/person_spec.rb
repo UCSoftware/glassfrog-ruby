@@ -5,12 +5,15 @@ VALID_NAMES = ['Facilitator', 'Secretary', 'Rep Link', 'Lead Link']
 describe Glassfrog::Person do
   before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
-    @person = @client.get(:people).sample
-    @circle = @client.get(:circles).sample
-    @role = @client.get(:roles).select { |role| VALID_NAMES.include?(role.name) }.sample
   end
 
   describe '#get' do
+    before do
+      @person = @client.get(:people).sample
+      @circle = @client.get(:circles).sample
+      @role = @client.get(:roles).select { |role| VALID_NAMES.include?(role.name) }.sample
+    end
+
     it 'returns array of person item objects with singular symbol as type' do
       array_of_people = @client.get :person
       expect(array_of_people).to all(be_a(Glassfrog::Person))
@@ -74,6 +77,32 @@ describe Glassfrog::Person do
     end
     it 'raises error with invalid type as options' do
       expect { @client.get :person, true }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#post' do
+    before do
+      @new_person_hash = {
+        id: rand(10000),
+        description: 'Test person',
+        frequency: 'Weekly',
+        global: false,
+        link: 'http://undercurrent.com',
+        role_name: nil,
+        links: {
+          circle: 4772, 
+          role: 73198
+        }
+      }
+      @new_person_object = Glassfrog::Person.new(@new_person_hash)
+    end
+    it 'creates a new person object on GlassFrog with hash as options and returns this new object' do
+      array_of_people = @client.post :person, @new_person_hash
+      expect(array_of_people).to all(be_a(Glassfrog::Person))
+    end
+    it 'creates a new person object on GlassFrog with a checklist item object as options and returns this new object' do
+      array_of_people = @client.post :person, @new_person_object
+      expect(array_of_people).to all(be_a(Glassfrog::Person))
     end
   end
 end

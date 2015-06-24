@@ -1,5 +1,3 @@
-require 'glassfrog/base'
-
 module Glassfrog
   module Utils
     def parameterize(value)
@@ -20,7 +18,6 @@ module Glassfrog
     end
 
     def extract_id(object, klass)
-      type = klass || Glassfrog::Base
       case object
       when ::Integer
         object
@@ -30,7 +27,7 @@ module Glassfrog
         object[:id] || object[:ID]
       when URI, Addressable::URI
         object.path.split('/').last.to_i
-      when type
+      when klass
         object.id
       else
         nil

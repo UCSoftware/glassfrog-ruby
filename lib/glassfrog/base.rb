@@ -1,5 +1,8 @@
+require 'glassfrog/utils/utils'
+
 module Glassfrog
   class Base
+    include Glassfrog::Utils
     attr_accessor :id
     
     def initialize(attrs = {})
@@ -15,8 +18,8 @@ module Glassfrog
 
     def hashify
       hash = Hash.new
-      self.instance_variables.each { |var| hash[var.to_s.delete("@")] = gift.instance_variable_get(var) }
-      hash
+      self.instance_variables.each { |var| hash[var.to_s.delete("@")] = self.instance_variable_get(var) }
+      symbolize_keys(hash)
     end
   end
 end

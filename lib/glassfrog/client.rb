@@ -85,13 +85,13 @@ module Glassfrog
 
     def post(type, options={})
       klass = TYPES[parameterize(type)]
-      klass.public_send(:post, self, options)
+      klass.public_send(:post, self, validate_params(options, klass))
     end
 
     def patch(type, identifier, options={})
       klass = TYPES[parameterize(type)]
       identifier = parse_params(klass, identifier)
-      klass.public_send(:patch, self, identifier, options)
+      klass.public_send(:patch, self, identifier, validate_params(options, klass))
     end
 
     def delete(type, options={})

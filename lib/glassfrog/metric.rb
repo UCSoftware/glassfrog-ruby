@@ -6,7 +6,7 @@ require 'glassfrog/rest/delete'
 
 module Glassfrog
   class Metric < Glassfrog::Base
-    attr_accessor :description, :frequency, :global, :links
+    attr_accessor :description, :frequency, :global, :link, :role_name, :links
     PATH = '/metrics'
 
     def self.get(client, options)
@@ -21,9 +21,9 @@ module Glassfrog
     end
 
     def self.post(client, options)
-      options = options.is_a? Glassfrog::Metric ? options.hashify : options
-      options = { metrics: [ options ] }.to_json
-      response = Glassfrog::REST::Post.post(client, PATH, options)
+      options = options.is_a?(Glassfrog::Metric) ? options.hashify : options
+      response = Glassfrog::REST::Post.post(client, PATH, parse_options(options))
+      response[:metrics] ? response[:metrics].map { |metric| self.new(metric) } : []
     end
 
     def self.patch(client, identifier, options)
@@ -36,6 +36,25 @@ module Glassfrog
     def self.delete(client, options)
       path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
       response = Glassfrog::REST::Delete.delete(client, path, options)
+    end
+
+    private
+
+    PARAMS = [
+      :description,
+      :frequency,
+      :global,
+      :link,
+      :circle_id,
+      :role_id
+    ]
+
+    def self.parse_options(options)
+      options[:circle_id] = options[:links][:circle] if options[:links] && options[:links][:circle]
+      options[:role_id] = options[:links][:role] if options[:links] && options[:links][:role]
+      params_hash = Hash.new
+      PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
+      { metrics: [params_hash] }
     end
   end
 end

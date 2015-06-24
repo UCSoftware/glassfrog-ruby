@@ -1,11 +1,9 @@
-require 'glassfrog/utils/utils'
 require 'glassfrog/base'
 require 'glassfrog/rest/get'
 require 'glassfrog/rest/patch'
 
 module Glassfrog
   class Role < Glassfrog::Base
-    include Glassfrog::Utils
     attr_accessor :name, :purpose, :links
     PATH = '/roles'
 
