@@ -104,5 +104,12 @@ describe Glassfrog::Person do
       array_of_people = @client.post :person, @new_person_object
       expect(array_of_people).to all(be_a(Glassfrog::Person))
     end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.post :person, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+    it 'raises error with invalid type as options' do
+      expect { @client.post :person, true }.to raise_error(ArgumentError)
+    end
   end
 end

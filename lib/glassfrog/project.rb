@@ -18,8 +18,9 @@ module Glassfrog
     end
 
     def self.post(client, options)
-      options = options.is_a? Glassfrog::Project ? options.hashify : options
-      response = Glassfrog::REST::Post.post(client, PATH, options)
+      options = options.is_a?(Glassfrog::Project) ? options.hashify : options
+      response = Glassfrog::REST::Post.post(client, PATH, parse_options(options))
+      response[:projects].map { |project| self.new(project) }
     end
 
     def self.patch(client, identifier, options)
@@ -42,9 +43,7 @@ module Glassfrog
       :link,
       :value,
       :effort,
-      :roi,
       :private_to_circle,
-      :created_at,
       :archived_at,
       :circle_id,
       :role_id,
@@ -57,7 +56,7 @@ module Glassfrog
       options[:person_id] = options[:links][:person] if options[:links] && options[:links][:person]
       params_hash = Hash.new
       PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
-      { people: [params_hash] }
+      { projects: [params_hash] }
     end
   end
 end

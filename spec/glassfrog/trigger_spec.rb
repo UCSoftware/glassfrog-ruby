@@ -3,12 +3,15 @@ require 'spec_helper'
 describe Glassfrog::Trigger do
   before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
-    @trigger = @client.get(:triggers).sample
-    @circle = @client.get(:circles).sample
-    @person = @client.get(:people).sample
   end
 
   describe '#get' do
+    before do
+      @trigger = @client.get(:triggers).sample
+      @circle = @client.get(:circles).sample
+      @person = @client.get(:people).sample      
+    end
+
     it 'returns array of trigger item objects with singular symbol as type' do
       array_of_triggers = @client.get :trigger
       expect(array_of_triggers).to all(be_a(Glassfrog::Trigger))

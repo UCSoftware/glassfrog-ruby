@@ -3,10 +3,13 @@ require 'spec_helper'
 describe Glassfrog::Circle do
   before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
-    @circle = @client.get(:circles).sample
   end
 
   describe '#get' do
+    before do
+      @circle = @client.get(:circles).sample
+    end
+
     it 'returns array of circle objects with singular symbol as type' do
       array_of_circles = @client.get :circle
       expect(array_of_circles).to all(be_a(Glassfrog::Circle))

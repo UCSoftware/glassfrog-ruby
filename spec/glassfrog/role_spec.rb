@@ -3,12 +3,15 @@ require 'spec_helper'
 describe Glassfrog::Role do
   before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
-    @role = @client.get(:roles).sample
-    @circle = @client.get(:circles).sample
-    @person = @client.get(:people).sample
   end
 
   describe '#get' do
+    before do
+      @role = @client.get(:roles).sample
+      @circle = @client.get(:circles).sample
+      @person = @client.get(:people).sample
+    end
+
     it 'returns array of role item objects with singular symbol as type' do
       array_of_roles = @client.get :role
       expect(array_of_roles).to all(be_a(Glassfrog::Role))

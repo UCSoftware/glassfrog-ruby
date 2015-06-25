@@ -102,5 +102,12 @@ describe Glassfrog::Metric do
       array_of_metrics = @client.post :metric, @new_metric_object
       expect(array_of_metrics).to all(be_a(Glassfrog::Metric))
     end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.post :metric, Glassfrog::Trigger.new }.to raise_error(ArgumentError)
+    end
+    it 'raises error with invalid type as options' do
+      expect { @client.post :metric, true }.to raise_error(ArgumentError)
+    end
   end
 end

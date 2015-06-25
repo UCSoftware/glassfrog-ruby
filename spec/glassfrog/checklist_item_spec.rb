@@ -90,5 +90,12 @@ describe Glassfrog::ChecklistItem do
       array_of_checklist_items = @client.post :checklist_items, @new_checklist_item_object
       expect(array_of_checklist_items).to all(be_a(Glassfrog::ChecklistItem))
     end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.post :checklist_item, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+    it 'raises error with invalid type as options' do
+      expect { @client.post :checklist_item, true }.to raise_error(ArgumentError)
+    end
   end
 end

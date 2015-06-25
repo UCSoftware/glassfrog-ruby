@@ -3,12 +3,15 @@ require 'spec_helper'
 describe Glassfrog::Action do
   before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
-    @action = @client.get(:actions).sample
-    @person = @client.get(:people).sample
-    @circle = @client.get(:circles).sample
   end
 
   describe '#get' do
+    before do
+      @action = @client.get(:actions).sample
+      @person = @client.get(:people).sample
+      @circle = @client.get(:circles).sample     
+    end
+
     it 'returns array of action objects with singular symbol as type' do
       array_of_actions = @client.get :action
       expect(array_of_actions).to all(be_a(Glassfrog::Action))

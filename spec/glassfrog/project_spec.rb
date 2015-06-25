@@ -3,12 +3,15 @@ require 'spec_helper'
 describe Glassfrog::Project do
   before :context do
     @client = Glassfrog::Client.new(TestCredentials::API_KEY)
-    @project = @client.get(:projects).sample
-    @circle = @client.get(:circles).sample
-    @person = @client.get(:people).sample
   end
 
   describe '#get' do
+    before do
+      @project = @client.get(:projects).sample
+      @circle = @client.get(:circles).sample
+      @person = @client.get(:people).sample
+    end
+
     it 'returns array of project item objects with singular symbol as type' do
       array_of_projects = @client.get :project
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
@@ -72,6 +75,42 @@ describe Glassfrog::Project do
     end
     it 'raises error with invalid type as options' do
       expect { @client.get :project, true }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#post' do
+    before do
+      @new_project_hash = {
+        description: 'Test Project',
+        status: 'Future',
+        link: nil,
+        value: 5,
+        effort: 1,
+        roi: 5,
+        private_to_circle: false,
+        created_at: '2014-04-16T12:33:39Z',
+        links: {
+          circle: 4772, 
+          role: 73198,
+          person: 20062
+        }
+      }
+      @new_project_object = Glassfrog::Project.new(@new_project_hash)
+    end
+    it 'creates a new projcet object on GlassFrog with hash as options and returns this new object' do
+      array_of_projects = @client.post :project, @new_project_hash
+      expect(array_of_projects).to all(be_a(Glassfrog::Project))
+    end
+    it 'creates a new project object on GlassFrog with a project object as options and returns this new object' do
+      array_of_projects = @client.post :project, @new_project_object
+      expect(array_of_projects).to all(be_a(Glassfrog::Project))
+    end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.post :project, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+    it 'raises error with invalid type as options' do
+      expect { @client.post :project, true }.to raise_error(ArgumentError)
     end
   end
 end
