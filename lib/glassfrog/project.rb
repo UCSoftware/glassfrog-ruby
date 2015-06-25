@@ -31,7 +31,8 @@ module Glassfrog
     end
 
     def self.delete(client, options)
-      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
+      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
+      path = PATH + '/' + options.delete(:id).to_s
       response = Glassfrog::REST::Delete.delete(client, path, options)
     end
 

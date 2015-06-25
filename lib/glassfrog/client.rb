@@ -97,8 +97,9 @@ module Glassfrog
 
     def delete(type, options)
       klass = TYPES[parameterize(type)]
-      options = parse_params(options, klass)
-      klass.public_send(:delete, self, options)
+      identifier = extract_id(options, klass)
+      raise(ArgumentError, "No valid id found given in options") unless identifier
+      klass.public_send(:delete, self, { id: identifier })
     end
 
     def headers
