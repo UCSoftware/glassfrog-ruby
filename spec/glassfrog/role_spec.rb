@@ -78,51 +78,33 @@ describe Glassfrog::Role do
     end
   end
 
-  # describe '#patch' do
-  #   before :context do
-  #     @new_role_hash = {
-  #       id: rand(10000),
-  #       name: 'Test Person',
-  #       email: 'test.person.' + rand(10000).to_s + '@testemail.com'
-  #     }
-  #     @new_role_object = Glassfrog::Person.new(@new_person_hash)
-  #     @person = @client.post(:person, @new_role_object).first
-  #     @person_hash = @person.hashify
-  #     @person.name = 'Object Person'
-  #     @person_hash[:name] = 'Hash Person'
-  #   end
+  describe '#patch' do
+    before :context do
+      @role = @client.get(:roles).select { |role| role.name == "Sandperson" }.sample
+      @person = @client.post(:person, Glassfrog::Person.new({
+          name: 'Test Person',
+          email: 'test.person.' + rand(100000).to_s + '@testemail.com'
+        })).first
+    end
 
-  #   it 'updates a checklist item object on GlassFrog with a checklist item object as options without identifier' do
-  #     options = @client.patch :person, @person
-  #     expect(options).not_to be(false)
-  #     expect(@client.get(:person, options).first.name).to eq(@person.name)
-  #   end
-  #   it 'updates a checklist item object on GlassFrog with a hash as options without identifier' do
-  #     options = @client.patch :person, @person_hash
-  #     expect(options).not_to be(false)
-  #     expect(@client.get(:person, options).first.name).to eq(@person_hash[:name])
-  #   end
-  #   it 'updates a checklist item object on GlassFrog with a checklist item object as options with identifier' do
-  #     id = @person.id
-  #     options = @client.patch :person, id, @person
-  #     expect(options).not_to be(false)
-  #     expect(@client.get(:person, options).first.name).to eq(@person.name)
-  #   end
-  #   it 'updates a checklist item object on GlassFrog with a hash as options with identifier' do
-  #     id = @person_hash[:id]
-  #     options = @client.patch :person, id, @person_hash
-  #     expect(options).not_to be(false)
-  #     expect(@client.get(:person, options).first.name).to eq(@person_hash[:name])
-  #   end
+    it 'adds a role to a person on GlassFrog with a role object as options without identifier' do
+      @role.links[:people].push(@person.id)
+      options = @client.patch(:role, @role)
+      expect(options).not_to be(false)
+      expect(@client.get(:roles, options).first.links[:people].sort).to eq(@role.links[:people].sort)
+    end
+    it 'remove a role from a person on GlassFrog with a role object as options without identifier' do
+      @role.links[:people].delete(@person.id)
+      options = @client.patch(:role, @role)
+      expect(options).not_to be(false)
+      expect(@client.get(:roles, options).first.links[:people]).to eq(@role.links[:people])
+    end
 
-  #   it 'raises error with invalid object as options' do
-  #     expect { @client.patch :person, Glassfrog::Metric.new }.to raise_error(ArgumentError)
-  #   end
-  #   it 'raises error with invalid type as options' do
-  #     expect { @client.patch :person, true }.to raise_error(ArgumentError)
-  #   end
-  #   it 'raises error with valid object without id' do
-  #     expect { @client.patch :person, Glassfrog::Person.new({name: 'Test Checklist Item without id'}) }.to raise_error(ArgumentError)
-  #   end
-  # end
+    it 'raises error with invalid object as options' do
+      expect { @client.patch :role, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+    it 'raises error with invalid type as options' do
+      expect { @client.patch :role, true }.to raise_error(ArgumentError)
+    end
+  end
 end

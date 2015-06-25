@@ -6,6 +6,7 @@ module Glassfrog
   class Role < Glassfrog::Base
     attr_accessor :name, :purpose, :links
     PATH = '/roles'
+    PATCH_PATH = '/roles/0/links/people/'
 
     def self.get(client, options)
       options = options.is_a?(Glassfrog::Base) ? options.hashify : options
@@ -16,9 +17,21 @@ module Glassfrog
 
     def self.patch(client, identifier, options)
       path = PATH + '/' + identifier.to_s
-      options = options.is_a?(Glassfrog::Role) ? options.hashify : options
-      options = Glassfrog::REST::Patch.formify(parse_options(options), self)
-      response = Glassfrog::REST::Patch.patch(client, path, options)
+      current_object = self.get(client, { id: identifier }).first
+      options = options.is_a?(Glassfrog::Role) ? parse_options(options.hashify) : parse_options(options)
+      if current_object.links && current_object.links[:people] && options[:people]
+        (options[:people] - current_object.links[:people]).each do |person_id|
+          o = formify_role_patch({ person_id: person_id }, 'add')
+          if !Glassfrog::REST::Patch.patch(client, path, o) then return false end
+        end
+        (current_object.links[:people] - options[:people]).each do |person_id|
+          o = formify_role_patch({ person_id: person_id }, 'remove')
+          if !Glassfrog::REST::Patch.patch(client, path, o) then return false end
+        end
+      else
+        raise(ArgumentError, "No people found")
+      end
+      true
     end
 
     def name_parameterized
@@ -28,25 +41,21 @@ module Glassfrog
     private
 
     PARAMS = [
-      :description,
-      :status,
-      :link,
-      :value,
-      :effort,
-      :private_to_circle,
-      :archived_at,
-      :circle_id,
-      :role_id,
-      :person_id
+      :people
     ]
 
     def self.parse_options(options)
-      options[:circle_id] = options[:links][:circle] if options[:links] && options[:links][:circle]
-      options[:role_id] = options[:links][:role] if options[:links] && options[:links][:role]
-      options[:person_id] = options[:links][:person] if options[:links] && options[:links][:person]
+      options[:people] = options[:links][:people] if options[:links] && options[:links][:people]
       params_hash = Hash.new
       PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
       params_hash
+    end
+
+    def self.formify_role_patch(options, operation)
+      options.keys.map do |key|
+        { op: operation,
+          path: PATCH_PATH + options[key].to_s }
+      end
     end
   end
 end
