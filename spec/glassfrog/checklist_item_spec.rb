@@ -82,6 +82,7 @@ describe Glassfrog::ChecklistItem do
       }
       @new_checklist_item_object = Glassfrog::ChecklistItem.new(@new_checklist_item_hash)
     end
+
     it 'creates a new checklist item object on GlassFrog with hash as options and returns this new object' do
       array_of_checklist_items = @client.post :checklist_items, @new_checklist_item_hash
       expect(array_of_checklist_items).to all(be_a(Glassfrog::ChecklistItem))
@@ -97,5 +98,24 @@ describe Glassfrog::ChecklistItem do
     it 'raises error with invalid type as options' do
       expect { @client.post :checklist_item, true }.to raise_error(ArgumentError)
     end
+  end
+
+  describe '#patch' do
+    before do
+      @new_checklist_item_object = Glassfrog::ChecklistItem.new({
+        id: rand(10000),
+        description: 'Test Checklist Item',
+        frequency: 'Weekly',
+        global: false,
+        links: {
+          circle: 4772, 
+          role: 73198
+        }
+      })
+      @checklist_item = @client.post(:checklist_item, @new_checklist_item_object).first
+      @checklist_item.description = 'This is updated'
+    end
+
+
   end
 end

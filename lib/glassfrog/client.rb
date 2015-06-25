@@ -12,7 +12,7 @@ module Glassfrog
   class Client
     include Glassfrog::Utils
     attr_accessor :api_key
-    attr_reader :caching, :unrelenting
+    attr_reader :caching, :persistence
 
     TYPES = {
       action: Glassfrog::Action,

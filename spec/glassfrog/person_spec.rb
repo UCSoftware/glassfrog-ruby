@@ -84,15 +84,8 @@ describe Glassfrog::Person do
     before do
       @new_person_hash = {
         id: rand(10000),
-        description: 'Test person',
-        frequency: 'Weekly',
-        global: false,
-        link: 'http://undercurrent.com',
-        role_name: nil,
-        links: {
-          circle: 4772, 
-          role: 73198
-        }
+        name: 'Test Person',
+        email: 'test.person.' + rand(10000).to_s + '@testemail.com'
       }
       @new_person_object = Glassfrog::Person.new(@new_person_hash)
     end
