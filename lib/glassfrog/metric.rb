@@ -22,14 +22,14 @@ module Glassfrog
 
     def self.post(client, options)
       options = options.is_a?(Glassfrog::Metric) ? options.hashify : options
-      response = Glassfrog::REST::Post.post(client, PATH, parse_options(options))
+      response = Glassfrog::REST::Post.post(client, PATH, { metrics: [parse_options(options)] })
       response[:metrics] ? response[:metrics].map { |metric| self.new(metric) } : []
     end
 
     def self.patch(client, identifier, options)
-      path = PATH + '/' + identifier
-      options = options.is_a? Glassfrog::Metric ? options.hashify : options
-      options = formify(options)
+      path = PATH + '/' + identifier.to_s
+      options = options.is_a?(Glassfrog::Metric) ? options.hashify : options
+      options = Glassfrog::REST::Patch.formify(parse_options(options), self)
       response = Glassfrog::REST::Patch.patch(client, path, options)
     end
 
@@ -54,7 +54,7 @@ module Glassfrog
       options[:role_id] = options[:links][:role] if options[:links] && options[:links][:role]
       params_hash = Hash.new
       PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
-      { metrics: [params_hash] }
+      params_hash
     end
   end
 end

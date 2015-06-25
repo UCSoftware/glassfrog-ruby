@@ -83,18 +83,19 @@ module Glassfrog
       klass.public_send(:get, self, options)
     end
 
-    def post(type, options={})
+    def post(type, options)
       klass = TYPES[parameterize(type)]
-      klass.public_send(:post, self, validate_params(options, klass))
+      klass.public_send(:post, self, validate_options(options, klass))
     end
 
-    def patch(type, identifier, options={})
+    def patch(type, identifier=nil, options)
       klass = TYPES[parameterize(type)]
-      identifier = parse_params(klass, identifier)
-      klass.public_send(:patch, self, identifier, validate_params(options, klass))
+      identifier = extract_id(options, klass) if identifier.nil?
+      raise(ArgumentError, "No valid id found given in options") if identifier.nil?
+      if klass.public_send(:patch, self, identifier, validate_options(options, klass)) then options else false end
     end
 
-    def delete(type, options={})
+    def delete(type, options)
       klass = TYPES[parameterize(type)]
       options = parse_params(options, klass)
       klass.public_send(:delete, self, options)
@@ -127,8 +128,13 @@ module Glassfrog
       end
     end
 
+    def validate_options(options, klass)
+      raise(ArgumentError, "Options cannot be " + options.class.name) unless options.is_a?(klass) || options.is_a?(Hash)
+      options
+    end
+
     def validate_params(params, klass)
-      raise(ArgumentError, "options can't be " + params.class.name) unless params.is_a?(klass) || params.is_a?(Hash) || 
+      raise(ArgumentError, "Options cannot be " + params.class.name) unless params.is_a?(klass) || params.is_a?(Hash) || 
         (ASSOCIATED_PARAMS[klass] && ASSOCIATED_PARAMS[klass].keys.include?(params.class))
       params
     end

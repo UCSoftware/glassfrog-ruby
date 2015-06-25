@@ -13,7 +13,7 @@ module Glassfrog
       REQUEST_ASSOCIATIONS = {
         get: :params,
         post: :json,
-        patch: :params,
+        patch: :json,
         delete: :form
       }
 
@@ -36,7 +36,11 @@ module Glassfrog
       def fail_or_return_response_body(code, body, headers)
         error = error(code, body, headers)
         fail(error) if error
-        symbolize_keys(body.parse)
+        if @request_method == :patch
+          true
+        else
+          symbolize_keys(body.parse)
+        end
       end
 
       def error(code, body, headers)

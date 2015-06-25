@@ -22,15 +22,15 @@ module Glassfrog
 
     def self.post(client, options)
       options = options.is_a?(Glassfrog::ChecklistItem) ? options.hashify : options
-      response = Glassfrog::REST::Post.post(client, PATH, parse_options(options))
+      response = Glassfrog::REST::Post.post(client, PATH, { checklist_items: [parse_options(options)] })
       response[:checklist_items] ? response[:checklist_items].map { |checklist_item| self.new(checklist_item) } : []
     end
 
     def self.patch(client, identifier, options)
-      path = PATH + '/' + identifier
-      options = options.is_a? Glassfrog::ChecklistItem ? options.hashify : options
-      options = formify(options)
-      response = Glassfrog::REST::Patch.patch(client, PATH, options)
+      path = PATH + '/' + identifier.to_s
+      options = options.is_a?(Glassfrog::ChecklistItem) ? options.hashify : options
+      options = Glassfrog::REST::Patch.formify(parse_options(options), self)
+      response = Glassfrog::REST::Patch.patch(client, path, options)
     end
 
     def self.delete(client, options)
@@ -53,7 +53,7 @@ module Glassfrog
       options[:role_id] = options[:links][:role] if options[:links] && options[:links][:role]
       params_hash = Hash.new
       PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
-      { checklist_items: [params_hash] }
+      params_hash
     end
   end
 end

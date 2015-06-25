@@ -6,7 +6,7 @@ describe Glassfrog::Project do
   end
 
   describe '#get' do
-    before do
+    before :context do
       @project = @client.get(:projects).sample
       @circle = @client.get(:circles).sample
       @person = @client.get(:people).sample
@@ -79,7 +79,7 @@ describe Glassfrog::Project do
   end
 
   describe '#post' do
-    before do
+    before :context do
       @new_project_hash = {
         description: 'Test Project',
         status: 'Future',
@@ -97,7 +97,7 @@ describe Glassfrog::Project do
       }
       @new_project_object = Glassfrog::Project.new(@new_project_hash)
     end
-    it 'creates a new projcet object on GlassFrog with hash as options and returns this new object' do
+    it 'creates a new project object on GlassFrog with hash as options and returns this new object' do
       array_of_projects = @client.post :project, @new_project_hash
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end

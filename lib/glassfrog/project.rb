@@ -19,14 +19,14 @@ module Glassfrog
 
     def self.post(client, options)
       options = options.is_a?(Glassfrog::Project) ? options.hashify : options
-      response = Glassfrog::REST::Post.post(client, PATH, parse_options(options))
+      response = Glassfrog::REST::Post.post(client, PATH, { projects: [parse_options(options)] })
       response[:projects].map { |project| self.new(project) }
     end
 
     def self.patch(client, identifier, options)
-      path = PATH + '/' + identifier
-      options = options.is_a? Glassfrog::Project ? options.hashify : options
-      options = formify(options)
+      path = PATH + '/' + identifier.to_s
+      options = options.is_a?(Glassfrog::Project) ? options.hashify : options
+      options = Glassfrog::REST::Patch.formify(parse_options(options), self)
       response = Glassfrog::REST::Patch.patch(client, path, options)
     end
 
@@ -56,7 +56,7 @@ module Glassfrog
       options[:person_id] = options[:links][:person] if options[:links] && options[:links][:person]
       params_hash = Hash.new
       PARAMS.each { |param| params_hash[param] = options[param] if options[param] }
-      { projects: [params_hash] }
+      params_hash
     end
   end
 end

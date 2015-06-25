@@ -8,7 +8,7 @@ describe Glassfrog::Person do
   end
 
   describe '#get' do
-    before do
+    before :context do
       @person = @client.get(:people).sample
       @circle = @client.get(:circles).sample
       @role = @client.get(:roles).select { |role| VALID_NAMES.include?(role.name) }.sample
@@ -81,7 +81,7 @@ describe Glassfrog::Person do
   end
 
   describe '#post' do
-    before do
+    before :context do
       @new_person_hash = {
         id: rand(10000),
         name: 'Test Person',
@@ -93,16 +93,64 @@ describe Glassfrog::Person do
       array_of_people = @client.post :person, @new_person_hash
       expect(array_of_people).to all(be_a(Glassfrog::Person))
     end
-    it 'creates a new person object on GlassFrog with a checklist item object as options and returns this new object' do
+    it 'creates a new person object on GlassFrog with a person object as options and returns this new object' do
       array_of_people = @client.post :person, @new_person_object
       expect(array_of_people).to all(be_a(Glassfrog::Person))
     end
 
     it 'raises error with invalid object as options' do
-      expect { @client.post :person, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+      expect { @client.post :person, Glassfrog::Project.new }.to raise_error(ArgumentError)
     end
     it 'raises error with invalid type as options' do
       expect { @client.post :person, true }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#patch' do
+    before :context do
+      @new_person_hash = {
+        id: rand(10000),
+        name: 'Test Person',
+        email: 'test.person.' + rand(10000).to_s + '@testemail.com'
+      }
+      @new_person_object = Glassfrog::Person.new(@new_person_hash)
+      @person = @client.post(:person, @new_person_object).first
+      @person_hash = @person.hashify
+      @person.name = 'Object Person'
+      @person_hash[:name] = 'Hash Person'
+    end
+
+    it 'updates a person object on GlassFrog with a person object as options without identifier' do
+      options = @client.patch :person, @person
+      expect(options).not_to be(false)
+      expect(@client.get(:person, options).first.name).to eq(@person.name)
+    end
+    it 'updates a person object on GlassFrog with a hash as options without identifier' do
+      options = @client.patch :person, @person_hash
+      expect(options).not_to be(false)
+      expect(@client.get(:person, options).first.name).to eq(@person_hash[:name])
+    end
+    it 'updates a person object on GlassFrog with a person object as options with identifier' do
+      id = @person.id
+      options = @client.patch :person, id, @person
+      expect(options).not_to be(false)
+      expect(@client.get(:person, options).first.name).to eq(@person.name)
+    end
+    it 'updates a person object on GlassFrog with a hash as options with identifier' do
+      id = @person_hash[:id]
+      options = @client.patch :person, id, @person_hash
+      expect(options).not_to be(false)
+      expect(@client.get(:person, options).first.name).to eq(@person_hash[:name])
+    end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.patch :person, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+    it 'raises error with invalid type as options' do
+      expect { @client.patch :person, true }.to raise_error(ArgumentError)
+    end
+    it 'raises error with valid object without id' do
+      expect { @client.patch :person, Glassfrog::Person.new({name: 'Test person without id'}) }.to raise_error(ArgumentError)
     end
   end
 end

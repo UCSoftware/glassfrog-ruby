@@ -6,7 +6,7 @@ describe Glassfrog::Circle do
   end
 
   describe '#get' do
-    before do
+    before :context do
       @circle = @client.get(:circles).sample
     end
 

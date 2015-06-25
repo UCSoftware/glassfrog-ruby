@@ -6,7 +6,7 @@ describe Glassfrog::ChecklistItem do
   end
 
   describe '#get' do
-    before do
+    before :context do
       @checklist_item = @client.get(:checklist_items).sample
       @circle = @client.get(:circles).sample
     end
@@ -101,8 +101,8 @@ describe Glassfrog::ChecklistItem do
   end
 
   describe '#patch' do
-    before do
-      @new_checklist_item_object = Glassfrog::ChecklistItem.new({
+    before :context do
+      @new_checklist_item_hash = {
         id: rand(10000),
         description: 'Test Checklist Item',
         frequency: 'Weekly',
@@ -111,11 +111,45 @@ describe Glassfrog::ChecklistItem do
           circle: 4772, 
           role: 73198
         }
-      })
+      }
+      @new_checklist_item_object = Glassfrog::ChecklistItem.new(@new_checklist_item_hash)
       @checklist_item = @client.post(:checklist_item, @new_checklist_item_object).first
-      @checklist_item.description = 'This is updated'
+      @checklist_item_hash = @checklist_item.hashify
+      @checklist_item.description = 'This is an update with object'
+      @checklist_item_hash[:description] = 'This is an update with hash'
     end
 
+    it 'updates a checklist item object on GlassFrog with a checklist item object as options without identifier' do
+      options = @client.patch :checklist_item, @checklist_item
+      expect(options).not_to be(false)
+      expect(@client.get(:checklist_item, options).first.description).to eq(@checklist_item.description)
+    end
+    it 'updates a checklist item object on GlassFrog with a hash as options without identifier' do
+      options = @client.patch :checklist_item, @checklist_item_hash
+      expect(options).not_to be(false)
+      expect(@client.get(:checklist_item, options).first.description).to eq(@checklist_item_hash[:description])
+    end
+    it 'updates a checklist item object on GlassFrog with a checklist item object as options with identifier' do
+      id = @checklist_item.id
+      options = @client.patch :checklist_item, id, @checklist_item
+      expect(options).not_to be(false)
+      expect(@client.get(:checklist_item, options).first.description).to eq(@checklist_item.description)
+    end
+    it 'updates a checklist item object on GlassFrog with a hash as options with identifier' do
+      id = @checklist_item_hash[:id]
+      options = @client.patch :checklist_item, id, @checklist_item_hash
+      expect(options).not_to be(false)
+      expect(@client.get(:checklist_item, options).first.description).to eq(@checklist_item_hash[:description])
+    end
 
+    it 'raises error with invalid object as options' do
+      expect { @client.patch :checklist_item, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+    it 'raises error with invalid type as options' do
+      expect { @client.patch :checklist_item, true }.to raise_error(ArgumentError)
+    end
+    it 'raises error with valid object without id' do
+      expect { @client.patch :checklist_item, Glassfrog::ChecklistItem.new({description: 'Test Checklist Item without id'}) }.to raise_error(ArgumentError)
+    end
   end
 end

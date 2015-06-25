@@ -7,11 +7,11 @@ module Glassfrog
         Glassfrog::REST::Request.new(client, :patch, path, options).perform
       end
 
-      def formify(options, type)
+      def self.formify(options, type)
         options.keys.map do |key|
          { op: 'replace',
-           path: '/' + type + '/0/' + key,
-           value: options[key] } 
+           path: type::PATH + '/0/' + key.to_s,
+           value: options[key] }
         end
       end
     end

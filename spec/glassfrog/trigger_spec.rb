@@ -6,7 +6,7 @@ describe Glassfrog::Trigger do
   end
 
   describe '#get' do
-    before do
+    before :context do
       @trigger = @client.get(:triggers).sample
       @circle = @client.get(:circles).sample
       @person = @client.get(:people).sample      

@@ -6,7 +6,7 @@ describe Glassfrog::Metric do
   end
 
   describe '#get' do
-    before do
+    before :context do
       @metric = @client.get(:metrics).sample
       @role = @client.get(:role).sample
       @circle = @client.get(:circles).sample
@@ -79,7 +79,7 @@ describe Glassfrog::Metric do
   end
 
   describe '#post' do
-    before do
+    before :context do
       @new_metric_hash = {
         id: rand(10000),
         description: 'Test Metric',
@@ -98,7 +98,7 @@ describe Glassfrog::Metric do
       array_of_metrics = @client.post :metric, @new_metric_hash
       expect(array_of_metrics).to all(be_a(Glassfrog::Metric))
     end
-    it 'creates a new metric object on GlassFrog with a checklist item object as options and returns this new object' do
+    it 'creates a new metric object on GlassFrog with a metric object as options and returns this new object' do
       array_of_metrics = @client.post :metric, @new_metric_object
       expect(array_of_metrics).to all(be_a(Glassfrog::Metric))
     end
@@ -108,6 +108,61 @@ describe Glassfrog::Metric do
     end
     it 'raises error with invalid type as options' do
       expect { @client.post :metric, true }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#patch' do
+    before :context do
+      @new_metric_hash = {
+        id: rand(10000),
+        description: 'Test Metric',
+        frequency: 'Weekly',
+        global: false,
+        link: 'http://undercurrent.com',
+        role_name: nil,
+        links: {
+          circle: 4772, 
+          role: 73198
+        }
+      }
+      @new_metric_object = Glassfrog::Metric.new(@new_metric_hash)
+      @metric = @client.post(:metric, @new_metric_object).first
+      @metric_hash = @metric.hashify
+      @metric.description = 'This is an update with object'
+      @metric_hash[:description] = 'This is an update with hash'
+    end
+
+    it 'updates a metric object on GlassFrog with a metric object as options without identifier' do
+      options = @client.patch :metric, @metric
+      expect(options).not_to be(false)
+      expect(@client.get(:metric, options).first.description).to eq(@metric.description)
+    end
+    it 'updates a metric object on GlassFrog with a hash as options without identifier' do
+      options = @client.patch :metric, @metric_hash
+      expect(options).not_to be(false)
+      expect(@client.get(:metric, options).first.description).to eq(@metric_hash[:description])
+    end
+    it 'updates a metric object on GlassFrog with a metric object as options with identifier' do
+      id = @metric.id
+      options = @client.patch :metric, id, @metric
+      expect(options).not_to be(false)
+      expect(@client.get(:metric, options).first.description).to eq(@metric.description)
+    end
+    it 'updates a metric object on GlassFrog with a hash as options with identifier' do
+      id = @metric_hash[:id]
+      options = @client.patch :metric, id, @metric_hash
+      expect(options).not_to be(false)
+      expect(@client.get(:metric, options).first.description).to eq(@metric_hash[:description])
+    end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.patch :metric, Glassfrog::Person.new }.to raise_error(ArgumentError)
+    end
+    it 'raises error with invalid type as options' do
+      expect { @client.patch :metric, true }.to raise_error(ArgumentError)
+    end
+    it 'raises error with valid object without id' do
+      expect { @client.patch :metric, Glassfrog::Metric.new({description: 'Test metric without id'}) }.to raise_error(ArgumentError)
     end
   end
 end

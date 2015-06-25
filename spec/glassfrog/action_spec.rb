@@ -6,7 +6,7 @@ describe Glassfrog::Action do
   end
 
   describe '#get' do
-    before do
+    before :context do
       @action = @client.get(:actions).sample
       @person = @client.get(:people).sample
       @circle = @client.get(:circles).sample     
