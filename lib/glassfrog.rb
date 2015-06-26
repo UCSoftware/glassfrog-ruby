@@ -1,5 +1,8 @@
-require "glassfrog/version"
+require 'glassfrog/version'
+require 'glassfrog/client'
 
+# 
+# Encapsulates all of GlassFrog functionality.
+# 
 module Glassfrog
-  # Your code goes here...
 end
