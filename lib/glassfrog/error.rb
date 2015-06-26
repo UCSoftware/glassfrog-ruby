@@ -1,13 +1,6 @@
-# 
-# [module description]
-# 
-# @author [robertwells]
-# 
 module Glassfrog
   # 
-  # [class description]
-  # 
-  # @author [robertwells]
+  # Encapsulates GlassFrog HTTP errors.
   # 
   class Error < StandardError
     # @return [Integer]
