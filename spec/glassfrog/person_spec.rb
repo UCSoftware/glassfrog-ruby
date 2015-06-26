@@ -94,6 +94,7 @@ describe Glassfrog::Person do
       expect(array_of_people).to all(be_a(Glassfrog::Person))
     end
     it 'creates a new person object on GlassFrog with a person object as options and returns this new object' do
+      @new_person_object.email = 'test.person.' + rand(10000).to_s + '@testemail.com'
       array_of_people = @client.post :person, @new_person_object
       expect(array_of_people).to all(be_a(Glassfrog::Person))
     end

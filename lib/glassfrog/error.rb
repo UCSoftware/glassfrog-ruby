@@ -1,5 +1,16 @@
+# 
+# [module description]
+# 
+# @author [robertwells]
+# 
 module Glassfrog
+  # 
+  # [class description]
+  # 
+  # @author [robertwells]
+  # 
   class Error < StandardError
+    # @return [Integer]
     attr_reader :code
 
     # Raised with a 4xx HTTP status code
@@ -43,7 +54,17 @@ module Glassfrog
       504 => Glassfrog::Error::GatewayTimeout,
     }
 
+    # 
+    # GlassFrog HTTP errors.
+    # 
     class << self
+      #
+      # Create a new error from an HTTP response
+      # @param code [Integer] The HTTP response code.
+      # @param body [String] The HTTP response body.
+      # @param headers [Hash] The HTTP response headers.
+      # 
+      # @return [Glassfrog::Error] The corresponding error for the 
       def from_response(code, body, headers)
         message = parse_error(code, body, headers)
         new(message, code)
@@ -51,6 +72,13 @@ module Glassfrog
 
       private
 
+      # 
+      # Returns a corresponding message for a GlassFrog error.
+      # @param code [Integer] The HTTP response code.
+      # @param body [String] The HTTP response body.
+      # @param headers [Hash] The HTTP response headers.
+      # 
+      # @return [String, Integer] A meaningful message or the error code.
       def parse_error(code, body, headers)
         if body.content_type['mime_type'] == 'application/json' && body.parse['message']
           body.parse['message']
@@ -62,6 +90,12 @@ module Glassfrog
       end
     end
 
+    # 
+    # Initializes a new Error object.
+    # @param message = '' [String] Meaningful message about the error.
+    # @param code = nil [Integer] The HTTP response code.
+    # 
+    # @return [Glassfrog::Error] The initialized Error.
     def initialize(message = '', code = nil)
       super(message)
       @code = code

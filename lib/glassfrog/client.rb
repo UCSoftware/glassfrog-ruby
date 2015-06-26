@@ -9,9 +9,14 @@ require 'glassfrog/role'
 require 'glassfrog/trigger'
 
 module Glassfrog
+  # 
+  # Encapsulates HTTP/GlassFrog message sending.
+  # 
   class Client
     include Glassfrog::Utils
+    # @return [String]
     attr_accessor :api_key
+    # @return [Boolean]
     attr_reader :caching, :persistence
 
     TYPES = {
@@ -66,6 +71,11 @@ module Glassfrog
       }
     }
 
+    # 
+    # Initializes a new Client object.
+    # @param attrs={} [Hash, String] Either just the API key, or a Hash of options.
+    # 
+    # @return [Glassfrog::Client] The initialized Client object.
     def initialize(attrs={})
       if attrs.class == String
         @api_key = attrs
@@ -77,17 +87,36 @@ module Glassfrog
       yield(self) if block_given?
     end
 
+    # 
+    # Sends a GET request to the corresponding object type.
+    # @param type [Glassfrog::Base] Object type to send request to.
+    # @param options={} [Hash, Glassfrog::Base, Integer, String, URI] Options to specify object(s) to fetch.
+    # 
+    # @return [Array<Glassfrog::Base>] The fetched object(s).
     def get(type, options={})
       klass = TYPES[parameterize(type)]
       options = parse_params(options, klass)
       klass.public_send(:get, self, options)
     end
 
+    # 
+    # Sends a POST request to the corresponding object type.
+    # @param type [Glassfrog::Base] Object type to send request to.
+    # @param options={} [Hash, Glassfrog::Base] Options to specify attribute(s) of object being created.
+    # 
+    # @return [Array<Glassfrog::Base>] The created object.
     def post(type, options)
       klass = TYPES[parameterize(type)]
       klass.public_send(:post, self, validate_options(options, klass))
     end
 
+    # 
+    # Sends a PATCH request to the corresponding object type.
+    # @param type [Glassfrog::Base] Object type to send request to.
+    # @param identifier=nil [Integer] The ID of the object to update
+    # @param options={} [Hash, Glassfrog::Base] Options to specify attribute(s) to update and/or ID.
+    # 
+    # @return [Hash, Glassfrog::Base, Integer, String, URI, Boolean] The options passed if successful or false if unsuccessful.
     def patch(type, identifier=nil, options)
       klass = TYPES[parameterize(type)]
       identifier = extract_id(options, klass) if identifier.nil?
@@ -95,6 +124,12 @@ module Glassfrog
       if klass.public_send(:patch, self, identifier, validate_options(options, klass)) then options else false end
     end
 
+    # 
+    # Sends a DELETE request to the corresponding object type.
+    # @param type [Glassfrog::Base] Object type to send request to.
+    # @param options={} [Hash, Glassfrog::Base, Integer, String, URI] Options to specify the ID of the object to delete.
+    # 
+    # @return [Boolean] Whether the request was successful.
     def delete(type, options)
       klass = TYPES[parameterize(type)]
       identifier = extract_id(options, klass)
@@ -102,16 +137,30 @@ module Glassfrog
       if klass.public_send(:delete, self, { id: identifier }) then true else false end
     end
 
+    # 
+    # Gets the HTTP headers for requests.
+    # 
+    # @return [Hash] The headers.
     def headers
       { 'X-Auth-Token' => self.api_key }
     end
 
+    # 
+    # Checks if there is an API Key.
+    # 
+    # @return [Boolean] Whether there is an API Key.
     def api_key?
       !!(api_key)
     end
 
     private
 
+    # 
+    # Extracts the ID from options and validates the options before a request.
+    # @param options [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
+    # @param klass [Class] The class of the object being targeted.
+    # 
+    # @return [Hash, Glassfrog::Base] The parameters to pass to the request.
     def parse_params(options, klass)
       options = symbolize_keys(options)
       id = extract_id(options, klass)
@@ -119,6 +168,12 @@ module Glassfrog
       validate_params(params, klass)
     end
 
+    # 
+    # Checks if an associated object was passed as options.
+    # @param options [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
+    # @param klass [Class] The class of the object being targeted.
+    # 
+    # @return [Hash, Glassfrog::Base, Integer, String, URI] The associated object parameter in a hash or options.
     def parse_associated_params(options, klass)
       associated_param = ASSOCIATED_PARAMS[klass] && ASSOCIATED_PARAMS[klass][options.class] ? ASSOCIATED_PARAMS[klass][options.class] : nil
       if associated_param
@@ -129,11 +184,23 @@ module Glassfrog
       end
     end
 
+    # 
+    # Checks if options are valid.
+    # @param options [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
+    # @param klass [Class] The class of the object being targeted.
+    # 
+    # @return [Hash, Glassfrog::Base, Integer, String, URI] If valid options, if invalid raises error.
     def validate_options(options, klass)
       raise(ArgumentError, "Options cannot be " + options.class.name) unless options.is_a?(klass) || options.is_a?(Hash)
       options
     end
 
+    # 
+    # Checks if options are valid or if they are an associated object.
+    # @param params [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
+    # @param klass [Class] The class of the object being targeted.
+    # 
+    # @return [Hash, Glassfrog::Base, Integer, String, URI] If valid params, if invalid raises error.
     def validate_params(params, klass)
       raise(ArgumentError, "Options cannot be " + params.class.name) unless params.is_a?(klass) || params.is_a?(Hash) || 
         (ASSOCIATED_PARAMS[klass] && ASSOCIATED_PARAMS[klass].keys.include?(params.class))
