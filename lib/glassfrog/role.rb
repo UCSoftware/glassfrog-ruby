@@ -84,7 +84,7 @@ module Glassfrog
     # @param options [Hash] Hash containing the Person to update the Roles of.
     # @param operation [String] The operation to perform, either 'Remove' or 'Add'.
     # 
-    # @return [type] [description]
+    # @return [Hash] Formatted options.
     def self.formify_role_patch(options, operation)
       options.keys.map do |key|
         { op: operation,

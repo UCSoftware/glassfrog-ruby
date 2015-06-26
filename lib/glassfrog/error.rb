@@ -57,7 +57,7 @@ module Glassfrog
       # @param body [String] The HTTP response body.
       # @param headers [Hash] The HTTP response headers.
       # 
-      # @return [Glassfrog::Error] The corresponding error for the 
+      # @return [Glassfrog::Error] The corresponding error for the code.
       def from_response(code, body, headers)
         message = parse_error(code, body, headers)
         new(message, code)

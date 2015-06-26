@@ -113,7 +113,7 @@ module Glassfrog
     # 
     # Sends a PATCH request to the corresponding object type.
     # @param type [Glassfrog::Base] Object type to send request to.
-    # @param identifier=nil [Integer] The ID of the object to update
+    # @param identifier=nil [Integer] The ID of the object to update.
     # @param options={} [Hash, Glassfrog::Base] Options to specify attribute(s) to update and/or ID.
     # 
     # @return [Hash, Glassfrog::Base, Integer, String, URI, Boolean] The options passed if successful or false if unsuccessful.
