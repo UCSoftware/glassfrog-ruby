@@ -99,7 +99,7 @@ module Glassfrog
       klass = TYPES[parameterize(type)]
       identifier = extract_id(options, klass)
       raise(ArgumentError, "No valid id found given in options") unless identifier
-      klass.public_send(:delete, self, { id: identifier })
+      if klass.public_send(:delete, self, { id: identifier }) then true else false end
     end
 
     def headers

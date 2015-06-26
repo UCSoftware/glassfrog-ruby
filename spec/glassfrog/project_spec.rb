@@ -113,4 +113,38 @@ describe Glassfrog::Project do
       expect { @client.post :project, true }.to raise_error(ArgumentError)
     end
   end
+
+  describe '#delete' do
+    before :context do
+      @new_project_hash = {
+        description: 'Test Project',
+        status: 'Future',
+        link: nil,
+        value: 5,
+        effort: 1,
+        roi: 5,
+        private_to_circle: false,
+        created_at: '2014-04-16T12:33:39Z',
+        links: {
+          circle: 4772, 
+          role: 73198,
+          person: 20062
+        }
+      }
+    end
+
+    it 'deletes a checklist item on GlassFrog with a checklist item as options' do
+      @project = @client.post(:project, @new_project_hash).first
+      expect(@client.delete :project, @project).to be(true)
+    end
+
+    it 'deletes a checklist item on GlassFrog with a hash as options' do
+      @project = @client.post(:project, @new_project_hash).first
+      expect(@client.delete :project, @project.hashify).to be(true)
+    end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.delete :project, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+  end
 end

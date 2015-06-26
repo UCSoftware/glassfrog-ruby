@@ -153,4 +153,27 @@ describe Glassfrog::Person do
       expect { @client.patch :person, Glassfrog::Person.new({name: 'Test person without id'}) }.to raise_error(ArgumentError)
     end
   end
+
+  describe '#delete' do
+    before :context do
+      @new_person_hash = {
+        name: 'Test Person',
+        email: 'ruby.person.' + rand(10000).to_s + '@testemail.com'
+      }
+    end
+
+    it 'deletes a checklist item on GlassFrog with a checklist item as options' do
+      @person = @client.post(:person, @new_person_hash).first
+      expect(@client.delete :person, @person).to be(true)
+    end
+
+    it 'deletes a checklist item on GlassFrog with a hash as options' do
+      @person = @client.post(:person, @new_person_hash).first
+      expect(@client.delete :person, @person.hashify).to be(true)
+    end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.delete :person, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+  end
 end

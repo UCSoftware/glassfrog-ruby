@@ -165,4 +165,34 @@ describe Glassfrog::Metric do
       expect { @client.patch :metric, Glassfrog::Metric.new({description: 'Test metric without id'}) }.to raise_error(ArgumentError)
     end
   end
+
+  describe '#delete' do
+    before :context do
+      @new_metric_hash = {
+        description: 'Test Metric',
+        frequency: 'Weekly',
+        global: false,
+        link: 'http://undercurrent.com',
+        role_name: nil,
+        links: {
+          circle: 4772, 
+          role: 73198
+        }
+      }
+    end
+
+    it 'deletes a metric on GlassFrog with a metric as options' do
+      @metric = @client.post(:metric, @new_metric_hash).first
+      expect(@client.delete :metric, @metric).to be(true)
+    end
+
+    it 'deletes a metric on GlassFrog with a hash as options' do
+      @metric = @client.post(:metric, @new_metric_hash).first
+      expect(@client.delete :metric, @metric.hashify).to be(true)
+    end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.delete :metric, Glassfrog::ChecklistItem.new }.to raise_error(ArgumentError)
+    end
+  end
 end

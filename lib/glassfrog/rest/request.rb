@@ -36,7 +36,7 @@ module Glassfrog
       def fail_or_return_response_body(code, body, headers)
         error = error(code, body, headers)
         fail(error) if error
-        if @request_method == :patch
+        if @request_method == :patch || @request_method == :delete
           true
         else
           symbolize_keys(body.parse)

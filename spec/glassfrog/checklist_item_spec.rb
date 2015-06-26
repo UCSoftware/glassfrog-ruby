@@ -152,4 +152,32 @@ describe Glassfrog::ChecklistItem do
       expect { @client.patch :checklist_item, Glassfrog::ChecklistItem.new({description: 'Test Checklist Item without id'}) }.to raise_error(ArgumentError)
     end
   end
+
+  describe '#delete' do
+    before :context do
+      @new_checklist_item_hash = {
+        description: 'Test Checklist Item',
+        frequency: 'Weekly',
+        global: false,
+        links: {
+          circle: 4772, 
+          role: 73198
+        }
+      }
+    end
+
+    it 'deletes a checklist item on GlassFrog with a checklist item as options' do
+      @checklist_item = @client.post(:checklist_item, @new_checklist_item_hash).first
+      expect(@client.delete :checklist_item, @checklist_item).to be(true)
+    end
+
+    it 'deletes a checklist item on GlassFrog with a hash as options' do
+      @checklist_item = @client.post(:checklist_item, @new_checklist_item_hash).first
+      expect(@client.delete :checklist_item, @checklist_item.hashify).to be(true)
+    end
+
+    it 'raises error with invalid object as options' do
+      expect { @client.delete :checklist_item, Glassfrog::Metric.new }.to raise_error(ArgumentError)
+    end
+  end
 end
