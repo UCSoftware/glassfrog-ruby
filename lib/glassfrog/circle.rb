@@ -11,6 +11,7 @@ module Glassfrog
     # @return [Hash]
     attr_accessor :links
     PATH = '/circles'
+    TYPE = :circles
 
     # 
     # Sends a GET request for Circle(s) to GlassFrog.
@@ -19,10 +20,8 @@ module Glassfrog
     # 
     # @return [Array<Glassfrog::Circle>] The array of Circle(s) fetched from GlassFrog.
     def self.get(client, options)
-      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
-      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
-      response = Glassfrog::REST::Get.get(client, path, options)
-      response[:circles].map { |circle| self.new(circle) }
+      response = Glassfrog::REST::Get.get(client, PATH, options)
+      response[TYPE].map { |object| self.new(object) }
     end
   end
 end

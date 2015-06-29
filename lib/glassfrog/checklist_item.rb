@@ -16,6 +16,7 @@ module Glassfrog
     # @return [Hash]
     attr_accessor :links
     PATH = '/checklist_items'
+    TYPE = :checklist_items
 
     # 
     # Sends a GET request for ChecklistItem(s) to GlassFrog.
@@ -24,14 +25,8 @@ module Glassfrog
     # 
     # @return [Array<Glassfrog::ChecklistItem>] The array of ChecklistItem(s) fetched from GlassFrog.
     def self.get(client, options)
-      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
-      if options.is_a?(Hash) && options[:id]
-        response = Glassfrog::REST::Get.get(client, PATH, {})
-        if response[:checklist_items] then response[:checklist_items].select! { |checklist_item| checklist_item[:id] == options[:id] } end
-      else 
-        response = Glassfrog::REST::Get.get(client, PATH, options)
-      end
-      response[:checklist_items] ? response[:checklist_items].map { |checklist_item| self.new(checklist_item) } : []
+      response = Glassfrog::REST::Get.irregular_get(client, TYPE, PATH, options)
+      response[TYPE] ? response[TYPE].map { |object| self.new(object) } : []
     end
 
     # 
@@ -41,9 +36,8 @@ module Glassfrog
     # 
     # @return [Array<Glassfrog::ChecklistItem>] The array containing the new ChecklistItem.
     def self.post(client, options)
-      options = options.is_a?(Glassfrog::ChecklistItem) ? options.hashify : options
-      response = Glassfrog::REST::Post.post(client, PATH, { checklist_items: [parse_options(options)] })
-      response[:checklist_items] ? response[:checklist_items].map { |checklist_item| self.new(checklist_item) } : []
+      response = Glassfrog::REST::Post.post(client, PATH, { TYPE => [parse_options(options)] })
+      response[TYPE] ? response[TYPE].map { |object| self.new(object) } : []
     end
 
     # 
@@ -54,10 +48,8 @@ module Glassfrog
     # 
     # @return [Boolean] Whether the request failed or not.
     def self.patch(client, identifier, options)
-      path = PATH + '/' + identifier.to_s
-      options = options.is_a?(Glassfrog::ChecklistItem) ? options.hashify : options
       options = Glassfrog::REST::Patch.formify(parse_options(options), self)
-      response = Glassfrog::REST::Patch.patch(client, path, options)
+      response = Glassfrog::REST::Patch.patch(client, PATH + '/' + identifier.to_s, options)
     end
 
     # 
@@ -67,7 +59,6 @@ module Glassfrog
     # 
     # @return [Boolean] Whether the request failed or not.
     def self.delete(client, options)
-      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
       path = PATH + '/' + options.delete(:id).to_s
       response = Glassfrog::REST::Delete.delete(client, path, options)
     end

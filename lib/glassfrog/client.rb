@@ -1,3 +1,4 @@
+require 'http'
 require 'glassfrog/utils/utils'
 require 'glassfrog/action'
 require 'glassfrog/checklist_item'
@@ -18,6 +19,8 @@ module Glassfrog
     attr_accessor :api_key
     # @return [Boolean]
     attr_reader :caching, :persistence
+    # @return [HTTP]
+    attr_reader :http
 
     TYPES = {
       action: Glassfrog::Action,
@@ -85,6 +88,7 @@ module Glassfrog
         end
       end
       yield(self) if block_given?
+      @http = @http ? HTTP.cache(@http) : HTTP
     end
 
     # 
@@ -96,6 +100,7 @@ module Glassfrog
     def get(type, options={})
       klass = TYPES[parameterize(type)]
       options = parse_params(options, klass)
+      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
       klass.public_send(:get, self, options)
     end
 
@@ -107,6 +112,7 @@ module Glassfrog
     # @return [Array<Glassfrog::Base>] The created object.
     def post(type, options)
       klass = TYPES[parameterize(type)]
+      options = options.is_a?(klass) ? options.hashify : options
       klass.public_send(:post, self, validate_options(options, klass))
     end
 
@@ -121,6 +127,7 @@ module Glassfrog
       klass = TYPES[parameterize(type)]
       identifier = extract_id(options, klass) if identifier.nil?
       raise(ArgumentError, "No valid id found given in options") if identifier.nil?
+      options = options.is_a?(klass) ? options.hashify : options
       if klass.public_send(:patch, self, identifier, validate_options(options, klass)) then options else false end
     end
 

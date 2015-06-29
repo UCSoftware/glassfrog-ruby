@@ -13,6 +13,7 @@ module Glassfrog
     attr_accessor :links
     PATH = '/roles'
     PATCH_PATH = '/roles/0/links/people/'
+    TYPE = :roles
 
     # 
     # Sends a GET request for Role(s) to GlassFrog.
@@ -21,10 +22,8 @@ module Glassfrog
     # 
     # @return [Array<Glassfrog::Role>] The array of Role(s) fetched from GlassFrog.
     def self.get(client, options)
-      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
-      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
-      response = Glassfrog::REST::Get.get(client, path, options)
-      response[:roles].map { |role| self.new(role) }
+      response = Glassfrog::REST::Get.get(client, PATH, options)
+      response[TYPE].map { |object| self.new(object) }
     end
 
     # 
