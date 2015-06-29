@@ -19,6 +19,8 @@ module Glassfrog
     attr_accessor :api_key
     # @return [Boolean]
     attr_reader :caching
+    # @return [Hash]
+    attr_reader :cache_settings
     # @return [HTTP]
     attr_reader :http
 
@@ -88,7 +90,7 @@ module Glassfrog
         end
       end
       yield(self) if block_given?
-      if @caching || @http
+      if @caching || @cache_settings
         @http = @http ? HTTP.cache(@http) : HTTP.cache(   metastore: "file:/var/cache/glassfrog/meta",
                                                         entitystore: "file:/var/cache/glassfrog/entity" )
       else
@@ -162,6 +164,22 @@ module Glassfrog
     # @return [Boolean] Whether there is an API Key.
     def api_key?
       !!(api_key)
+    end
+
+    # 
+    # Turns caching off.
+    # 
+    # @return [HTTP] The HTTP module without caching.
+    def caching_off!
+      @http = HTTP
+    end
+
+    # 
+    # Turns caching on.
+    # 
+    # @return [HTTP] The HTTP module with caching.
+    def caching_on!
+      @http = HTTP.cache(@cache_settings)
     end
 
     private
