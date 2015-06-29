@@ -46,7 +46,7 @@ module Glassfrog
       # 
       # Sends the Request.
       # 
-      # @return [Array<Hash>, Boolean] The fetched or created parameters or boolean reflecting whether the request was successful.
+      # @return [Array<Hash>, Boolean] The fetched or created parameters, or boolean reflecting whether the request was successful.
       def perform
         options_key = REQUEST_ASSOCIATIONS[@request_method]
         response = HTTP.headers(@headers).public_send(@request_method, @uri.to_s, options_key => @options)
@@ -56,7 +56,7 @@ module Glassfrog
       private
 
       # 
-      # Returns an error if there was one, or parses the fetched object.s
+      # Returns an error if there was one, or parses the fetched object.
       # @param code [Integer] The HTTP response code.
       # @param body [String] The body of the HTTP response.
       # @param headers [Hash] The HTTP response headers.
