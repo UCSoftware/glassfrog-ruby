@@ -173,6 +173,7 @@ module Glassfrog
 
     # 
     # Turns caching on.
+    # @param settings=nil [Hash] New caching settings.
     # 
     # @return [HTTP] The HTTP module with caching.
     def caching_on!(settings=nil)
