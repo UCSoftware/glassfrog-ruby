@@ -1,4 +1,4 @@
-3require 'glassfrog/base'
+require 'glassfrog/base'
 require 'glassfrog/rest/get'
 require 'glassfrog/rest/post'
 require 'glassfrog/rest/patch'
