@@ -28,10 +28,10 @@ module Glassfrog
       # @return [Array<Hash>] Array containing Hashes of objects fetched.
       def self.irregular_get(client, type, path, options)
         if options.is_a?(Hash) && options[:id]
-          response = Glassfrog::REST::Get.get(client, path, {})
+          response = get(client, path, {})
           if response[type] then response[type].select! { |object| object[:id] == options[:id] } end
         else
-          response = Glassfrog::REST::Get.get(client, path, options)
+          response = get(client, path, options)
         end
         response
       end
