@@ -89,8 +89,8 @@ module Glassfrog
       end
       yield(self) if block_given?
       if @caching || @http
-        @http = @http ? HTTP.cache(@http) : HTTP.cache( metastore:    "file:/var/cache/glassfrog/meta",
-                                                        entitystore:  "file:/var/cache/glassfrog/entity" )
+        @http = @http ? HTTP.cache(@http) : HTTP.cache(   metastore: "file:/var/cache/glassfrog/meta",
+                                                        entitystore: "file:/var/cache/glassfrog/entity" )
       else
         @http = HTTP
       end
@@ -105,7 +105,6 @@ module Glassfrog
     def get(type, options={})
       klass = TYPES[parameterize(type)]
       options = parse_params(options, klass)
-      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
       klass.public_send(:get, self, options)
     end
 
@@ -117,8 +116,8 @@ module Glassfrog
     # @return [Array<Glassfrog::Base>] The created object.
     def post(type, options)
       klass = TYPES[parameterize(type)]
-      options = options.is_a?(klass) ? options.hashify : options
-      klass.public_send(:post, self, validate_options(options, klass))
+      options = validate_options(options, klass)
+      klass.public_send(:post, self, options)
     end
 
     # 
@@ -132,8 +131,8 @@ module Glassfrog
       klass = TYPES[parameterize(type)]
       identifier = extract_id(options, klass) if identifier.nil?
       raise(ArgumentError, "No valid id found given in options") if identifier.nil?
-      options = options.is_a?(klass) ? options.hashify : options
-      if klass.public_send(:patch, self, identifier, validate_options(options, klass)) then options else false end
+      options = validate_options(options, klass)
+      if klass.public_send(:patch, self, identifier, options) then options else false end
     end
 
     # 
@@ -172,7 +171,7 @@ module Glassfrog
     # @param options [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
     # @param klass [Class] The class of the object being targeted.
     # 
-    # @return [Hash, Glassfrog::Base] The parameters to pass to the request.
+    # @return [Hash] The parameters to pass to the request.
     def parse_params(options, klass)
       options = symbolize_keys(options)
       id = extract_id(options, klass)
@@ -201,10 +200,10 @@ module Glassfrog
     # @param options [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
     # @param klass [Class] The class of the object being targeted.
     # 
-    # @return [Hash, Glassfrog::Base, Integer, String, URI] If valid options, if invalid raises error.
+    # @return [Hash, Integer, String, URI] If valid options, if invalid raises error.
     def validate_options(options, klass)
       raise(ArgumentError, "Options cannot be " + options.class.name) unless options.is_a?(klass) || options.is_a?(Hash)
-      options
+      options.is_a?(Glassfrog::Base) ? options.hashify : options
     end
 
     # 
@@ -212,11 +211,11 @@ module Glassfrog
     # @param params [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
     # @param klass [Class] The class of the object being targeted.
     # 
-    # @return [Hash, Glassfrog::Base, Integer, String, URI] If valid params, if invalid raises error.
+    # @return [Hash, Integer, String, URI] If valid params, if invalid raises error.
     def validate_params(params, klass)
       raise(ArgumentError, "Options cannot be " + params.class.name) unless params.is_a?(klass) || params.is_a?(Hash) || 
         (ASSOCIATED_PARAMS[klass] && ASSOCIATED_PARAMS[klass].keys.include?(params.class))
-      params
+      params.is_a?(Glassfrog::Base) ? params.hashify : params
     end
   end
 end

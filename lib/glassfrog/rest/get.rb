@@ -1,4 +1,3 @@
-require 'glassfrog/base'
 require 'glassfrog/rest/request'
 
 module Glassfrog
