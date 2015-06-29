@@ -23,54 +23,54 @@ module Glassfrog
     attr_reader :http
 
     TYPES = {
-      action: Glassfrog::Action,
+              action: Glassfrog::Action,
       checklist_item: Glassfrog::ChecklistItem,
-      circle: Glassfrog::Circle,
-      metric: Glassfrog::Metric,
-      person: Glassfrog::Person,
-      project: Glassfrog::Project,
-      role: Glassfrog::Role,
-      trigger: Glassfrog::Trigger,
+              circle: Glassfrog::Circle,
+              metric: Glassfrog::Metric,
+              person: Glassfrog::Person,
+             project: Glassfrog::Project,
+                role: Glassfrog::Role,
+             trigger: Glassfrog::Trigger,
     }
 
     TYPES.merge!({
-      actions: TYPES[:action],
+              actions: TYPES[:action],
       checklist_items: TYPES[:checklist_item],
-      circles: TYPES[:circle],
-      metrics: TYPES[:metric],
-      people: TYPES[:person],
-      projects: TYPES[:project],
-      roles: TYPES[:role],
-      triggers: TYPES[:trigger]
+              circles: TYPES[:circle],
+              metrics: TYPES[:metric],
+               people: TYPES[:person],
+             projects: TYPES[:project],
+                roles: TYPES[:role],
+             triggers: TYPES[:trigger]
     })
 
     ASSOCIATED_PARAMS = {
       Glassfrog::Role => {
-        Glassfrog::Circle => [:circle_id, :id],
-        Glassfrog::Person => [:person_id, :id] 
+        Glassfrog::Circle =>  [:circle_id, :id],
+        Glassfrog::Person =>  [:person_id, :id] 
         },
       Glassfrog::Person => {
-        Glassfrog::Circle => [:circle_id, :id],
-        Glassfrog::Role => [:role, :name]
+        Glassfrog::Circle =>  [:circle_id, :id],
+          Glassfrog::Role =>  [:role, :name]
         },
       Glassfrog::Project => {
-        Glassfrog::Circle => [:circle_id, :id],
-        Glassfrog::Person => [:person_id, :id]
+        Glassfrog::Circle =>  [:circle_id, :id],
+        Glassfrog::Person =>  [:person_id, :id]
         },
       Glassfrog::Metric => {
-        Glassfrog::Circle => [:circle_id, :id],
-        Glassfrog::Role => [:role_id, :id]
+        Glassfrog::Circle =>  [:circle_id, :id],
+          Glassfrog::Role =>  [:role_id, :id]
         },
       Glassfrog::ChecklistItem => {
-        Glassfrog::Circle => [:circle_id, :id]
+        Glassfrog::Circle =>  [:circle_id, :id]
         },
       Glassfrog::Action => {
-        Glassfrog::Person => [:person_id, :id],
-        Glassfrog::Circle => [:circle_id, :id]
+        Glassfrog::Person =>  [:person_id, :id],
+        Glassfrog::Circle =>  [:circle_id, :id]
         },
       Glassfrog::Trigger => {
-        Glassfrog::Person => [:person_id, :id],
-        Glassfrog::Circle => [:circle_id, :id]
+        Glassfrog::Person =>  [:person_id, :id],
+        Glassfrog::Circle =>  [:circle_id, :id]
       }
     }
 

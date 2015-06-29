@@ -21,9 +21,9 @@ module Glassfrog
       ROOT_URL = 'https://glassfrog.holacracy.org/api/v3'
 
       REQUEST_ASSOCIATIONS = {
-        get: :params,
-        post: :json,
-        patch: :json,
+           get: :params,
+          post: :json,
+         patch: :json,
         delete: :form
       }
 
