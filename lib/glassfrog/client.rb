@@ -90,12 +90,9 @@ module Glassfrog
         end
       end
       yield(self) if block_given?
-      if @caching || @cache_settings
-        @http = @http ? HTTP.cache(@http) : HTTP.cache(   metastore: "file:/var/cache/glassfrog/meta",
-                                                        entitystore: "file:/var/cache/glassfrog/entity" )
-      else
-        @http = HTTP
-      end
+      @cache_settings = @cache_settings || {   metastore: "file:/var/cache/glassfrog/meta",
+                                             entitystore: "file:/var/cache/glassfrog/entity" }
+      @http = @caching ? HTTP.cache(@cache_settings) : HTTP
     end
 
     # 
@@ -178,8 +175,9 @@ module Glassfrog
     # Turns caching on.
     # 
     # @return [HTTP] The HTTP module with caching.
-    def caching_on!
-      @http = HTTP.cache(@cache_settings)
+    def caching_on!(settings=nil)
+      @cache_settings = settings || @cache_settings
+      HTTP.cache(@cache_settings)
     end
 
     private
