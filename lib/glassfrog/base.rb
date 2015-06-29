@@ -21,6 +21,11 @@ module Glassfrog
       yield(self) if block_given?
     end
 
+    # 
+    # Check equality between two objects. Should be equal if they are the same type and their IDs are also equal.
+    # @param other [Glassfrog::Base] The object to compare to self.
+    # 
+    # @return [Boolean] They are equal or not.
     def ==(other)
       self.id == other.id && self.class == other.class
     end
