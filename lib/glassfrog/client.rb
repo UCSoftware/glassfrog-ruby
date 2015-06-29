@@ -18,7 +18,7 @@ module Glassfrog
     # @return [String]
     attr_accessor :api_key
     # @return [Boolean]
-    attr_reader :caching, :persistence
+    attr_reader :caching
     # @return [HTTP]
     attr_reader :http
 
@@ -88,7 +88,12 @@ module Glassfrog
         end
       end
       yield(self) if block_given?
-      @http = @http ? HTTP.cache(@http) : HTTP
+      if @caching || @http
+        @http = @http ? HTTP.cache(@http) : HTTP.cache( metastore:    "file:/var/cache/glassfrog/meta",
+                                                        entitystore:  "file:/var/cache/glassfrog/entity" )
+      else
+        @http = HTTP
+      end
     end
 
     # 
