@@ -90,9 +90,10 @@ module Glassfrog
         end
       end
       yield(self) if block_given?
+      settings = !@cache_settings.nil?
       @cache_settings = @cache_settings || {   metastore: "file:/var/cache/glassfrog/meta",
                                              entitystore: "file:/var/cache/glassfrog/entity" }
-      @http = @caching ? HTTP.cache(@cache_settings) : HTTP
+      @http = @caching || settings ? HTTP.cache(@cache_settings) : HTTP
     end
 
     # 
