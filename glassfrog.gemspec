@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   # Runtime Dependencies
   spec.add_runtime_dependency "addressable"
   spec.add_runtime_dependency "http"
+  spec.add_runtime_dependency "rack-cache"
 
   # Development Dependencies
   spec.add_development_dependency "bundler", "~> 1.10"

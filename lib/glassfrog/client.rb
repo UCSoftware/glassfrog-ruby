@@ -17,12 +17,12 @@ module Glassfrog
     include Glassfrog::Utils
     # @return [String]
     attr_accessor :api_key
+    # @return [HTTP]
+    attr_reader :http
     # @return [Boolean]
     attr_reader :caching
     # @return [Hash]
-    attr_reader :cache_settings
-    # @return [HTTP]
-    attr_reader :http
+    attr_reader :caching_settings
 
     TYPES = {
               action: Glassfrog::Action,
@@ -49,7 +49,7 @@ module Glassfrog
     ASSOCIATED_PARAMS = {
       Glassfrog::Role => {
         Glassfrog::Circle =>  [:circle_id, :id],
-        Glassfrog::Person =>  [:person_id, :id] 
+        Glassfrog::Person =>  [:person_id, :id]
         },
       Glassfrog::Person => {
         Glassfrog::Circle =>  [:circle_id, :id],
@@ -84,16 +84,18 @@ module Glassfrog
     def initialize(attrs={})
       if attrs.class == String
         @api_key = attrs
-      else
+      elsif attrs.class == Hash
         attrs.each do |key, value|
           instance_variable_set("@#{key}", value);
         end
+      else
+        raise(ArgumentError, 'Invalid Arguements. Must be String or Hash.')
       end
       yield(self) if block_given?
-      settings = !@cache_settings.nil?
-      @cache_settings = @cache_settings || {   metastore: "file:/var/cache/glassfrog/meta",
-                                             entitystore: "file:/var/cache/glassfrog/entity" }
-      @http = @caching || settings ? HTTP.cache(@cache_settings) : HTTP
+      settings = !@caching_settings.nil?
+      @caching_settings = @caching_settings || {   metastore: "file:./var/cache/meta",
+                                                 entitystore: "file:./var/cache/entity" }
+      @http = (@caching || (@caching.nil? && settings)) ? HTTP.cache(@caching_settings) : HTTP
     end
 
     # 
@@ -165,21 +167,21 @@ module Glassfrog
     end
 
     # 
-    # Turns caching off.
+    # Allow @caching to be set only once. Otherwise throw error.
+    # @param value [Boolean] Whether caching should be on or off.
     # 
-    # @return [HTTP] The HTTP module without caching.
-    def caching_off!
-      @http = HTTP
+    # @return [Boolean] The value.
+    def caching=(value)
+      defined?(@caching) ? raise(ArgumentError, "Caching is already set.") : @caching = value
     end
 
     # 
-    # Turns caching on.
-    # @param settings=nil [Hash] New caching settings.
+    # Allow @caching_settings to be set only once. Otherwise throw error.
+    # @param value [Hash] The caching settings.
     # 
-    # @return [HTTP] The HTTP module with caching.
-    def caching_on!(settings=nil)
-      @cache_settings = settings || @cache_settings
-      HTTP.cache(@cache_settings)
+    # @return [Hash] The settings that have been set.
+    def caching_settings=(value)
+      defined?(@caching_settings) ? raise(ArgumentError, "Caching Settings are already set.") : @caching_settings = value
     end
 
     private
