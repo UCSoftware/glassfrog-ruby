@@ -32,7 +32,7 @@ module Glassfrog
               person: Glassfrog::Person,
              project: Glassfrog::Project,
                 role: Glassfrog::Role,
-             trigger: Glassfrog::Trigger,
+             trigger: Glassfrog::Trigger
     }
 
     TYPES.merge!({
@@ -86,7 +86,7 @@ module Glassfrog
         @api_key = attrs
       elsif attrs.class == Hash
         attrs.each do |key, value|
-          instance_variable_set("@#{key}", value);
+          instance_variable_set("@#{key}", value)
         end
       else
         raise(ArgumentError, 'Invalid Arguements. Must be String or Hash.')
