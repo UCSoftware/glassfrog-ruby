@@ -12,68 +12,68 @@ describe Glassfrog::Project do
       @person = @client.get(:people).sample
     end
 
-    it 'returns array of project item objects with singular symbol as type' do
+    it 'should return an array of project item objects with singular symbol as type' do
       array_of_projects = @client.get :project
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
-    it 'returns array of project item objects with plural symbol as type' do
+    it 'should return an array of project item objects with plural symbol as type' do
       array_of_projects = @client.get :projects
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
-    it 'returns array of project item objects with singular string as type' do
+    it 'should return an array of project item objects with singular string as type' do
       array_of_projects = @client.get 'project'
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
-    it 'returns array of project item objects with plural string as type' do
+    it 'should return an array of project item objects with plural string as type' do
       array_of_projects = @client.get 'projects'
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
 
-    it 'returns array of project item objects with string as options' do
+    it 'should return an array of project item objects with string as options' do
       array_of_projects = @client.get :project, "#{@project.id}"
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
-    it 'returns array of project item objects with integer as options' do
+    it 'should return an array of project item objects with integer as options' do
       array_of_projects = @client.get :project, @project.id
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
 
-    it 'returns array of project item objects with id in hash as options' do
+    it 'should return an array of project item objects with id in hash as options' do
       array_of_projects = @client.get :project, { id: @project.id }
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
-    it 'returns array of project item objects with project item object as options' do
+    it 'should return an array of project item objects with project item object as options' do
       array_of_projects = @client.get :project, @project
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
 
-    it 'returns array of project item objects with circle object as options' do
+    it 'should return an array of project item objects with circle object as options' do
       array_of_projects = @client.get :project, @circle
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
-    it 'returns array of project item objects with circle_id in hash as options' do
+    it 'should return an array of project item objects with circle_id in hash as options' do
       array_of_projects = @client.get :project, { circle_id: @circle.id }
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
 
-    it 'returns array of project item objects with person object as options' do
+    it 'should return an array of project item objects with person object as options' do
       array_of_projects = @client.get :project, @person
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
-    it 'returns array of project item objects with person_id in hash as options' do
+    it 'should return an array of project item objects with person_id in hash as options' do
       array_of_projects = @client.get :project, { person_id: @person.name }
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
 
-    it 'returns array of all action objects with no options' do
+    it 'should return an array of all action objects with no options' do
       array_of_projects = @client.get :project
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
 
-    it 'raises error with unassociated object as options' do
+    it 'should raise an error with unassociated object as options' do
       expect { @client.get :project, Glassfrog::Trigger.new }.to raise_error(ArgumentError)
     end
-    it 'raises error with invalid type as options' do
+    it 'should raise an error with invalid type as options' do
       expect { @client.get :project, true }.to raise_error(ArgumentError)
     end
   end
@@ -97,19 +97,19 @@ describe Glassfrog::Project do
       }
       @new_project_object = Glassfrog::Project.new(@new_project_hash)
     end
-    it 'creates a new project object on GlassFrog with hash as options and returns this new object' do
+    it 'should create a new project object on GlassFrog with hash as options and returns this new object' do
       array_of_projects = @client.post :project, @new_project_hash
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
-    it 'creates a new project object on GlassFrog with a project object as options and returns this new object' do
+    it 'should create a new project object on GlassFrog with a project object as options and returns this new object' do
       array_of_projects = @client.post :project, @new_project_object
       expect(array_of_projects).to all(be_a(Glassfrog::Project))
     end
 
-    it 'raises error with invalid object as options' do
+    it 'should raise an error with invalid object as options' do
       expect { @client.post :project, Glassfrog::Metric.new }.to raise_error(ArgumentError)
     end
-    it 'raises error with invalid type as options' do
+    it 'should raise an error with invalid type as options' do
       expect { @client.post :project, true }.to raise_error(ArgumentError)
     end
   end
@@ -133,17 +133,17 @@ describe Glassfrog::Project do
       }
     end
 
-    it 'deletes a checklist item on GlassFrog with a checklist item as options' do
+    it 'should delete a checklist item on GlassFrog with a checklist item as options' do
       @project = @client.post(:project, @new_project_hash).first
       expect(@client.delete :project, @project).to be(true)
     end
 
-    it 'deletes a checklist item on GlassFrog with a hash as options' do
+    it 'should delete a checklist item on GlassFrog with a hash as options' do
       @project = @client.post(:project, @new_project_hash).first
       expect(@client.delete :project, @project.hashify).to be(true)
     end
 
-    it 'raises error with invalid object as options' do
+    it 'should raise an error with invalid object as options' do
       expect { @client.delete :project, Glassfrog::Metric.new }.to raise_error(ArgumentError)
     end
   end
