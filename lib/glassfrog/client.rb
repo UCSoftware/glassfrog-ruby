@@ -1,6 +1,7 @@
 require 'http'
 require 'tmpdir'
 require 'glassfrog/utils/utils'
+require 'glassfrog/utils/graph'
 require 'glassfrog/action'
 require 'glassfrog/checklist_item'
 require 'glassfrog/circle'

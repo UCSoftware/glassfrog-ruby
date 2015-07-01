@@ -10,6 +10,8 @@ module Glassfrog
     attr_accessor :name, :short_name, :strategy
     # @return [Hash]
     attr_accessor :links
+    # @return [Array<Glassfrog::Circle]
+    attr_accessor :sub_circles
     PATH = '/circles'
     TYPE = :circles
 
