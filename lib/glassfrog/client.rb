@@ -1,4 +1,5 @@
 require 'http'
+require 'tmpdir'
 require 'glassfrog/utils/utils'
 require 'glassfrog/action'
 require 'glassfrog/checklist_item'
@@ -23,6 +24,9 @@ module Glassfrog
     attr_reader :caching
     # @return [Hash]
     attr_reader :caching_settings
+    # @return [TempFile]
+    attr_reader :cache_meta, :cache_entity
+    CACHE = 'glassfrog-cache-'
 
     TYPES = {
               action: Glassfrog::Action,
@@ -92,10 +96,11 @@ module Glassfrog
         raise(ArgumentError, 'Invalid Arguements. Must be String or Hash.')
       end
       yield(self) if block_given?
-      settings = !@caching_settings.nil?
-      @caching_settings = @caching_settings || {   metastore: "file:./var/cache/meta",
-                                                 entitystore: "file:./var/cache/entity" }
-      @http = (@caching || (@caching.nil? && settings)) ? HTTP.cache(@caching_settings) : HTTP
+      @caching ||= nil
+      @caching = @caching || (@caching.nil? && @caching_settings)
+      tmpdir = @caching ? setup_cache : nil
+      ObjectSpace.define_finalizer(self, self.class.finalize(tmpdir)) if tmpdir
+      @http = @caching ? HTTP.cache({ metastore: @cache_meta, entitystore: @cache_entity }) : HTTP
     end
 
     # 
@@ -184,7 +189,29 @@ module Glassfrog
       defined?(@caching_settings) ? raise(ArgumentError, "Caching Settings are already set.") : @caching_settings = value
     end
 
+    # 
+    # Garbage collection finalizer for the cache directory; if a cache directory was created it will be deleted with the Client object.
+    # @param tmpdir [String] Path to the temporary directory.
+    # 
+    # @return [Proc] Proc containing the directory deletion.
+    def self.finalize(tmpdir)
+      proc { FileUtils.remove_entry(tmpdir) }
+    end
+
     private
+
+    # 
+    # Parses the meta and entity store locations or sets to the defaults (temporary files).
+    # 
+    # @return [String] If a temporary cache directory was created, returns that path string (or nil).
+    def setup_cache
+      @caching_settings ||= {}
+      @cache_tmpdir ||= Dir.mktmpdir(CACHE) unless @caching_settings[:metastore]
+      @cache_meta = @caching_settings[:metastore] || ('file:' + @cache_tmpdir + '/meta')
+      @cache_tmpdir ||= Dir.mktmpdir(CACHE) unless @caching_settings[:entitystore]
+      @cache_entity = @caching_settings[:entitystore] || ('file:' + @cache_tmpdir + '/entity')
+      @cache_tmpdir || nil
+    end
 
     # 
     # Extracts the ID from options and validates the options before a request.
