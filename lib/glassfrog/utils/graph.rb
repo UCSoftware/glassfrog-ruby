@@ -5,8 +5,8 @@ module Glassfrog
   module Graph
       # 
       # Finds the root of the 'circle tree' by finding the role that does not belong to a circle.
-      # @param circles [Array<Glassfrog::Circle>] Array of circle objects (i.e. returned from GET or post-hierarchy build).
-      # @param roles [Array<Glassfrog::Role>] Array of role objects (i.e. returned from GET).
+      # @param circles [Array<Glassfrog::Circle>] Array of circle objects (e.g. returned from GET or post-hierarchy build).
+      # @param roles [Array<Glassfrog::Role>] Array of role objects (e.g. returned from GET).
       # 
       # @return [Glassfrog::Circle] The root circle.
     def self.root(circles, roles)

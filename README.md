@@ -113,7 +113,7 @@ circle_1 = client.get :circle, Glassfrog::Circle.new({ id: 1 })
 role_1 = client.get :role, Glassfrog::Role.new({ id: 1 })
 ```
 
-##### Note updating certain objects require specific keys (people requires admin access)
+##### Note: Updating certain objects require specific keys (people requires admin access)
 
 #### Create a checklist item, metric, person, or project with POST and an object
 
