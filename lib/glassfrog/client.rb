@@ -157,6 +157,28 @@ module Glassfrog
     end
 
     # 
+    # Builds the organization's circle hierarchy.
+    # @param circles=nil [Array<Glassfrog::Circle>] Array of circle objects (used instead of a GET request).
+    # @param roles=nil [Array<Glassfrog::Role>] Array of role objects (used instead of a GET request).
+    # 
+    # @return [Glassfrog::Circle] The root circle.
+    def build_hierarchy(circles=nil, roles=nil)
+      Glassfrog::Graph.hierarchy(self, circles, roles)
+    end
+
+    # 
+    # Find the root circle of an array of circles.
+    # @param circles=nil [Array<Glassfrog::Circle>] Array to circle objects to find the root of.
+    # @param roles=nil [Array<Glassfrog::Role>] Array of role objects to use to find supporting role of the root circle.
+    # 
+    # @return [Glassfrog::Circle] The root circle.
+    def find_root(circles=nil, roles=nil)
+      circles ||= self.get :circles
+      roles ||= self.get :roles
+      Glassfrog::Graph.root(circles, roles)
+    end
+
+    # 
     # Gets the HTTP headers for requests.
     # 
     # @return [Hash] The headers.
