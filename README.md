@@ -172,6 +172,7 @@ was_deleted = client.patch :person, {
 
 ```ruby
 was_deleted = client.patch :person, 1
+```
 
 #### Build a hierarchy from an array of circles and roles, or get them from GlassFrog
 
