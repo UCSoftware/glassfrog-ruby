@@ -20,6 +20,7 @@ module Glassfrog
     # @param client [Glassfrog::Client] Client used to make the get requests (unless circles and roles are provided).
     # @param circles=nil [Array<Glassfrog::Circle>] Array of circle objects (used instead of a get request).
     # @param roles=nil [Array<Glassfrog::Role>] Array of role objects (used instead of a get request).
+    # 
     # @return [Glassfrog::Circle] The root circle of the 'circle tree'.
     def self.hierarchy(client, circles=nil, roles=nil)
       circles ||= client.get(:circles)
