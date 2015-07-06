@@ -1,13 +1,12 @@
 require 'spec_helper'
 
-TMP = "./tmp-cache"
+TMP_CACHE = Dir.mktmpdir("tmp-glassfrog-cache-")
 
 describe Glassfrog::Client do
+  after :context do
+    FileUtils.rm_rf(TMP_CACHE) if File.exist?(TMP_CACHE)
+  end
   describe '#initialize' do
-    after do
-      FileUtils.rm_rf(TMP) if File.exist?(TMP)
-    end
-
     it 'should instantiate with a string (API Key) as attrs' do
       client = Glassfrog::Client.new(TestCredentials::API_KEY)
       array_of_circles = client.get :circle
@@ -57,26 +56,26 @@ describe Glassfrog::Client do
       client = Glassfrog::Client.new do |client|
         client.caching = false
         client.caching_settings = {
-            metastore: "file:" + TMP + "/noncache/meta",
-          entitystore: "file:" + TMP + "/noncache/entity"
+            metastore: "file:" + TMP_CACHE + "/noncache/meta",
+          entitystore: "file:" + TMP_CACHE + "/noncache/entity"
         }
         client.api_key = TestCredentials::API_KEY
       end
       array_of_circles = client.get 'circle'
       expect(array_of_circles).to all(be_a(Glassfrog::Circle))
-      expect(File.directory?(TMP + "/cache")).to be false
+      expect(File.directory?(TMP_CACHE + "/cache")).to be false
     end
     it 'should instantiate when caching_settings are set' do
       client = Glassfrog::Client.new do |client|
         client.caching_settings = {
-            metastore: "file:" + TMP + "/cache/meta",
-          entitystore: "file:" + TMP + "/cache/entity"
+            metastore: "file:" + TMP_CACHE + "/cache/meta",
+          entitystore: "file:" + TMP_CACHE + "/cache/entity"
         }
         client.api_key = TestCredentials::API_KEY
       end
       array_of_circles = client.get 'circle'
       expect(array_of_circles).to all(be_a(Glassfrog::Circle))
-      expect(File.directory?(TMP + "/cache")).to be true
+      expect(File.directory?(TMP_CACHE + "/cache")).to be true
     end
   end
 
@@ -94,14 +93,14 @@ describe Glassfrog::Client do
     it 'should raise an error if @caching is already set' do
       client = Glassfrog::Client.new do |client|
         client.caching_settings = {
-              metastore: "file:" + TMP + "/cache/meta",
-            entitystore: "file:" + TMP + "/cache/entity"
+              metastore: "file:" + TMP_CACHE + "/cache/meta",
+            entitystore: "file:" + TMP_CACHE + "/cache/entity"
         }
         client.api_key = TestCredentials::API_KEY
       end
       expect { client.caching_settings = {
-              metastore: "file:" + TMP + "/cache/meta",
-            entitystore: "file:" + TMP + "/cache/entity"
+              metastore: "file:" + TMP_CACHE + "/cache/meta",
+            entitystore: "file:" + TMP_CACHE + "/cache/entity"
         } }.to raise_error(ArgumentError)
     end
   end
