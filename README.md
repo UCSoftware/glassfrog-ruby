@@ -1,5 +1,7 @@
 # Glassfrog
 
+[![Gem Version](https://badge.fury.io/rb/glassfrog.svg)](http://badge.fury.io/rb/glassfrog)
+
 A Ruby interface for the GlassFrog API.
 
 ## Installation
