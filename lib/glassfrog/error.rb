@@ -52,7 +52,7 @@ module Glassfrog
     # 
     class << self
       #
-      # Create a new error from an HTTP response
+      # Create a new error from an HTTP response.
       # @param code [Integer] The HTTP response code.
       # @param body [String] The HTTP response body.
       # @param headers [Hash] The HTTP response headers.
