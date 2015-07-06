@@ -19,12 +19,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime Dependencies
-  spec.add_runtime_dependency "addressable"
-  spec.add_runtime_dependency "http"
-  spec.add_runtime_dependency "rack-cache"
+  spec.add_runtime_dependency "addressable", "~> 2.3"
+  spec.add_runtime_dependency "http", "~> 0.8.0"
+  spec.add_runtime_dependency "rack-cache", "~> 1.2"
 
   # Development Dependencies
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rspec", "~> 3.3"
 end
