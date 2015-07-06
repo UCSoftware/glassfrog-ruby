@@ -168,7 +168,7 @@ module Glassfrog
 
     # 
     # Find the root circle of an array of circles.
-    # @param circles=nil [Array<Glassfrog::Circle>] Array to circle objects to find the root of.
+    # @param circles=nil [Array<Glassfrog::Circle>] Array of circle objects of which the root will be found.
     # @param roles=nil [Array<Glassfrog::Role>] Array of role objects to use to find supporting role of the root circle.
     # 
     # @return [Glassfrog::Circle] The root circle.
