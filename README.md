@@ -66,7 +66,7 @@ client = Glassfrog::Client.new do |config|
 end
 ```
 
-You can change the location of the cache file (or storage type) by passing in a `caching_settings` Hash or Block.
+You can change the location of the cache file (or storage type) by passing in a `caching_settings` Hash.
 
 ```ruby
 client = Glassfrog::Client.new({ 
