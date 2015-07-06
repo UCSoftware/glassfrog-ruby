@@ -16,6 +16,7 @@ module Glassfrog
     # @return [Hash]
     attr_accessor :links
     PATH = '/people'
+    TYPE = :people
 
     # 
     # Sends a GET request for Person(s) to GlassFrog.
@@ -24,10 +25,8 @@ module Glassfrog
     # 
     # @return [Array<Glassfrog::Person>] The array of Person(s) fetched from GlassFrog.
     def self.get(client, options)
-      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
-      path = options[:id] ? PATH + '/' + options.delete(:id).to_s : PATH
-      response = Glassfrog::REST::Get.get(client, path, options)
-      response[:people].map { |person| self.new(person) }
+      response = Glassfrog::REST::Get.get(client, PATH, options)
+      response[TYPE].map { |object| self.new(object) }
     end
 
     # 
@@ -37,9 +36,8 @@ module Glassfrog
     # 
     # @return [Array<Glassfrog::Person>] The array containing the new Person.
     def self.post(client, options)
-      options = options.is_a?(Glassfrog::Person) ? options.hashify : options
-      response = Glassfrog::REST::Post.post(client, PATH, { people: [parse_options(options)] })
-      response[:people].map { |person| self.new(person) }
+      response = Glassfrog::REST::Post.post(client, PATH, { TYPE => [parse_options(options)] })
+      response[TYPE].map { |object| self.new(object) }
     end
 
     # 
@@ -50,10 +48,8 @@ module Glassfrog
     # 
     # @return [Boolean] Whether the request failed or not.
     def self.patch(client, identifier, options)
-      path = PATH + '/' + identifier.to_s
-      options = options.is_a?(Glassfrog::Person) ? options.hashify : options
       options = Glassfrog::REST::Patch.formify(parse_options(options), self)
-      response = Glassfrog::REST::Patch.patch(client, path, options)
+      response = Glassfrog::REST::Patch.patch(client, PATH + '/' + identifier.to_s, options)
     end
 
     # 
@@ -63,7 +59,6 @@ module Glassfrog
     # 
     # @return [Boolean] Whether the request failed or not.
     def self.delete(client, options)
-      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
       path = PATH + '/' + options.delete(:id).to_s
       response = Glassfrog::REST::Delete.delete(client, path, options)
     end

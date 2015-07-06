@@ -1,5 +1,5 @@
 require 'addressable/uri'
-require 'http'
+require 'glassfrog/client'
 require 'glassfrog/error'
 require 'glassfrog/utils/utils'
 
@@ -21,9 +21,9 @@ module Glassfrog
       ROOT_URL = 'https://glassfrog.holacracy.org/api/v3'
 
       REQUEST_ASSOCIATIONS = {
-        get: :params,
-        post: :json,
-        patch: :json,
+           get: :params,
+          post: :json,
+         patch: :json,
         delete: :form
       }
 
@@ -49,7 +49,7 @@ module Glassfrog
       # @return [Array<Hash>, Boolean] The fetched or created parameters, or boolean reflecting whether the request was successful.
       def perform
         options_key = REQUEST_ASSOCIATIONS[@request_method]
-        response = HTTP.headers(@headers).public_send(@request_method, @uri.to_s, options_key => @options)
+        response = @client.http.headers(@headers).public_send(@request_method, @uri.to_s, options_key => @options)
         fail_or_return_response_body(response.code, response, response.headers)
       end
 

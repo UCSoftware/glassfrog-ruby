@@ -1,4 +1,7 @@
+require 'http'
+require 'tmpdir'
 require 'glassfrog/utils/utils'
+require 'glassfrog/utils/graph'
 require 'glassfrog/action'
 require 'glassfrog/checklist_item'
 require 'glassfrog/circle'
@@ -16,58 +19,65 @@ module Glassfrog
     include Glassfrog::Utils
     # @return [String]
     attr_accessor :api_key
+    # @return [HTTP]
+    attr_reader :http
     # @return [Boolean]
-    attr_reader :caching, :persistence
+    attr_reader :caching
+    # @return [Hash]
+    attr_reader :caching_settings
+    # @return [TempFile]
+    attr_reader :cache_meta, :cache_entity
+    CACHE = 'glassfrog-cache-'
 
     TYPES = {
-      action: Glassfrog::Action,
+              action: Glassfrog::Action,
       checklist_item: Glassfrog::ChecklistItem,
-      circle: Glassfrog::Circle,
-      metric: Glassfrog::Metric,
-      person: Glassfrog::Person,
-      project: Glassfrog::Project,
-      role: Glassfrog::Role,
-      trigger: Glassfrog::Trigger,
+              circle: Glassfrog::Circle,
+              metric: Glassfrog::Metric,
+              person: Glassfrog::Person,
+             project: Glassfrog::Project,
+                role: Glassfrog::Role,
+             trigger: Glassfrog::Trigger
     }
 
     TYPES.merge!({
-      actions: TYPES[:action],
+              actions: TYPES[:action],
       checklist_items: TYPES[:checklist_item],
-      circles: TYPES[:circle],
-      metrics: TYPES[:metric],
-      people: TYPES[:person],
-      projects: TYPES[:project],
-      roles: TYPES[:role],
-      triggers: TYPES[:trigger]
+              circles: TYPES[:circle],
+              metrics: TYPES[:metric],
+               people: TYPES[:person],
+             projects: TYPES[:project],
+                roles: TYPES[:role],
+             triggers: TYPES[:trigger]
     })
 
     ASSOCIATED_PARAMS = {
       Glassfrog::Role => {
-        Glassfrog::Circle => [:circle_id, :id],
-        Glassfrog::Person => [:person_id, :id] 
+        Glassfrog::Circle =>  [:circle_id, :id],
+        Glassfrog::Person =>  [:person_id, :id]
         },
       Glassfrog::Person => {
-        Glassfrog::Circle => [:circle_id, :id],
-        Glassfrog::Role => [:role, :name]
+        Glassfrog::Circle =>  [:circle_id, :id],
+          Glassfrog::Role =>  [:role, :name]
         },
       Glassfrog::Project => {
-        Glassfrog::Circle => [:circle_id, :id],
-        Glassfrog::Person => [:person_id, :id]
+        Glassfrog::Circle =>  [:circle_id, :id],
+        Glassfrog::Person =>  [:person_id, :id]
         },
       Glassfrog::Metric => {
-        Glassfrog::Circle => [:circle_id, :id],
-        Glassfrog::Role => [:role_id, :id]
+        Glassfrog::Circle =>  [:circle_id, :id],
+          Glassfrog::Role =>  [:role_id, :id]
         },
       Glassfrog::ChecklistItem => {
-        Glassfrog::Circle => [:circle_id, :id]
+        Glassfrog::Circle =>  [:circle_id, :id]
         },
       Glassfrog::Action => {
-        Glassfrog::Person => [:person_id, :id],
-        Glassfrog::Circle => [:circle_id, :id]
+        Glassfrog::Person =>  [:person_id, :id],
+        Glassfrog::Circle =>  [:circle_id, :id]
         },
       Glassfrog::Trigger => {
-        Glassfrog::Person => [:person_id, :id],
-        Glassfrog::Circle => [:circle_id, :id]
+        Glassfrog::Person =>  [:person_id, :id],
+        Glassfrog::Circle =>  [:circle_id, :id]
       }
     }
 
@@ -79,12 +89,19 @@ module Glassfrog
     def initialize(attrs={})
       if attrs.class == String
         @api_key = attrs
-      else
+      elsif attrs.class == Hash
         attrs.each do |key, value|
-          instance_variable_set("@#{key}", value);
+          instance_variable_set("@#{key}", value)
         end
+      else
+        raise(ArgumentError, 'Invalid Arguements. Must be String or Hash.')
       end
       yield(self) if block_given?
+      @caching ||= nil
+      @caching = @caching || (@caching.nil? && @caching_settings)
+      tmpdir = @caching ? setup_cache : nil
+      ObjectSpace.define_finalizer(self, self.class.finalize(tmpdir)) if tmpdir
+      @http = @caching ? HTTP.cache({ metastore: @cache_meta, entitystore: @cache_entity }) : HTTP
     end
 
     # 
@@ -107,7 +124,8 @@ module Glassfrog
     # @return [Array<Glassfrog::Base>] The created object.
     def post(type, options)
       klass = TYPES[parameterize(type)]
-      klass.public_send(:post, self, validate_options(options, klass))
+      options = validate_options(options, klass)
+      klass.public_send(:post, self, options)
     end
 
     # 
@@ -121,7 +139,8 @@ module Glassfrog
       klass = TYPES[parameterize(type)]
       identifier = extract_id(options, klass) if identifier.nil?
       raise(ArgumentError, "No valid id found given in options") if identifier.nil?
-      if klass.public_send(:patch, self, identifier, validate_options(options, klass)) then options else false end
+      options = validate_options(options, klass)
+      if klass.public_send(:patch, self, identifier, options) then options else false end
     end
 
     # 
@@ -135,6 +154,28 @@ module Glassfrog
       identifier = extract_id(options, klass)
       raise(ArgumentError, "No valid id found given in options") unless identifier
       if klass.public_send(:delete, self, { id: identifier }) then true else false end
+    end
+
+    # 
+    # Builds the organization's circle hierarchy.
+    # @param circles=nil [Array<Glassfrog::Circle>] Array of circle objects (used instead of a GET request).
+    # @param roles=nil [Array<Glassfrog::Role>] Array of role objects (used instead of a GET request).
+    # 
+    # @return [Glassfrog::Circle] The root circle.
+    def build_hierarchy(circles=nil, roles=nil)
+      Glassfrog::Graph.hierarchy(self, circles, roles)
+    end
+
+    # 
+    # Find the root circle of an array of circles.
+    # @param circles=nil [Array<Glassfrog::Circle>] Array of circle objects of which the root will be found.
+    # @param roles=nil [Array<Glassfrog::Role>] Array of role objects to use to find supporting role of the root circle.
+    # 
+    # @return [Glassfrog::Circle] The root circle.
+    def find_root(circles=nil, roles=nil)
+      circles ||= self.get :circles
+      roles ||= self.get :roles
+      Glassfrog::Graph.root(circles, roles)
     end
 
     # 
@@ -153,14 +194,54 @@ module Glassfrog
       !!(api_key)
     end
 
+    # 
+    # Allow @caching to be set only once. Otherwise throw error.
+    # @param value [Boolean] Whether caching should be on or off.
+    # 
+    # @return [Boolean] The value.
+    def caching=(value)
+      defined?(@caching) ? raise(ArgumentError, "Caching is already set.") : @caching = value
+    end
+
+    # 
+    # Allow @caching_settings to be set only once. Otherwise throw error.
+    # @param value [Hash] The caching settings.
+    # 
+    # @return [Hash] The settings that have been set.
+    def caching_settings=(value)
+      defined?(@caching_settings) ? raise(ArgumentError, "Caching Settings are already set.") : @caching_settings = value
+    end
+
+    # 
+    # Garbage collection finalizer for the cache directory; if a cache directory was created it will be deleted with the Client object.
+    # @param tmpdir [String] Path to the temporary directory.
+    # 
+    # @return [Proc] Proc containing the directory deletion.
+    def self.finalize(tmpdir)
+      proc { FileUtils.remove_entry(tmpdir) }
+    end
+
     private
+
+    # 
+    # Parses the meta and entity store locations or sets to the defaults (temporary files).
+    # 
+    # @return [String] If a temporary cache directory was created, returns that path string (or nil).
+    def setup_cache
+      @caching_settings ||= {}
+      @cache_tmpdir ||= Dir.mktmpdir(CACHE) unless @caching_settings[:metastore]
+      @cache_meta = @caching_settings[:metastore] || ('file:' + @cache_tmpdir + '/meta')
+      @cache_tmpdir ||= Dir.mktmpdir(CACHE) unless @caching_settings[:entitystore]
+      @cache_entity = @caching_settings[:entitystore] || ('file:' + @cache_tmpdir + '/entity')
+      @cache_tmpdir || nil
+    end
 
     # 
     # Extracts the ID from options and validates the options before a request.
     # @param options [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
     # @param klass [Class] The class of the object being targeted.
     # 
-    # @return [Hash, Glassfrog::Base] The parameters to pass to the request.
+    # @return [Hash] The parameters to pass to the request.
     def parse_params(options, klass)
       options = symbolize_keys(options)
       id = extract_id(options, klass)
@@ -189,10 +270,10 @@ module Glassfrog
     # @param options [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
     # @param klass [Class] The class of the object being targeted.
     # 
-    # @return [Hash, Glassfrog::Base, Integer, String, URI] If valid options, if invalid raises error.
+    # @return [Hash, Integer, String, URI] If valid options, if invalid raises error.
     def validate_options(options, klass)
       raise(ArgumentError, "Options cannot be " + options.class.name) unless options.is_a?(klass) || options.is_a?(Hash)
-      options
+      options.is_a?(Glassfrog::Base) ? options.hashify : options
     end
 
     # 
@@ -200,11 +281,11 @@ module Glassfrog
     # @param params [Hash, Glassfrog::Base, Integer, String, URI] Options passed to the request.
     # @param klass [Class] The class of the object being targeted.
     # 
-    # @return [Hash, Glassfrog::Base, Integer, String, URI] If valid params, if invalid raises error.
+    # @return [Hash, Integer, String, URI] If valid params, if invalid raises error.
     def validate_params(params, klass)
       raise(ArgumentError, "Options cannot be " + params.class.name) unless params.is_a?(klass) || params.is_a?(Hash) || 
         (ASSOCIATED_PARAMS[klass] && ASSOCIATED_PARAMS[klass].keys.include?(params.class))
-      params
+      params.is_a?(Glassfrog::Base) ? params.hashify : params
     end
   end
 end

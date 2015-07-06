@@ -13,6 +13,7 @@ module Glassfrog
     # @return [Hash]
     attr_accessor :links
     PATH = '/actions'
+    TYPE = :actions
 
     # 
     # Sends a GET request for Action(s) to GlassFrog.
@@ -21,14 +22,8 @@ module Glassfrog
     # 
     # @return [Array<Glassfrog::Action>] The array of Action(s) fetched from GlassFrog.
     def self.get(client, options)
-      options = options.is_a?(Glassfrog::Base) ? options.hashify : options
-      if options.is_a?(Hash) && options[:id]
-        response = Glassfrog::REST::Get.get(client, PATH, {})
-        if response[:actions] then response[:actions].select! { |action| action[:id] == options[:id] } end
-      else 
-        response = Glassfrog::REST::Get.get(client, PATH, options)
-      end
-      response[:actions] ? response[:actions].map { |action| self.new(action) } : []
+      response = Glassfrog::REST::Get.irregular_get(client, TYPE, PATH, options)
+      response[TYPE] ? response[TYPE].map { |object| self.new(object) } : []
     end
   end
 end
