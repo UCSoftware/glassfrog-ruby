@@ -50,7 +50,7 @@ end
 
 ## Usage
 
-This GlassFrog interface also has a caching feature which allows https requests to be cached and only sent once.
+This GlassFrog interface also has a caching feature which allows http requests to be cached and only sent once.
 
 To set caching with the default (temporary) cache, pass `true` to the `caching` variable.
 
@@ -85,7 +85,7 @@ client = Glassfrog::Client.new({
 client = Glassfrog::Client.new do |config|
     config.api_key = "YOUR_API_KEY"
     config.caching = true
-    caching_settings: {
+    config.caching_settings: {
         :metastore   => 'file:/var/cache/rack/meta',
         :entitystore => 'file:/var/cache/rack/body'
     }
