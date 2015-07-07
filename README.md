@@ -85,7 +85,7 @@ client = Glassfrog::Client.new({
 client = Glassfrog::Client.new do |config|
     config.api_key = "YOUR_API_KEY"
     config.caching = true
-    config.caching_settings: {
+    config.caching_settings = {
         :metastore   => 'file:/var/cache/rack/meta',
         :entitystore => 'file:/var/cache/rack/body'
     }
