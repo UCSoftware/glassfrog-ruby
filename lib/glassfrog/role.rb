@@ -1,6 +1,7 @@
 require 'glassfrog/base'
 require 'glassfrog/rest/get'
 require 'glassfrog/rest/patch'
+require 'glassfrog/link_factory'
 
 module Glassfrog
   # 
@@ -10,10 +11,21 @@ module Glassfrog
     # @return [String]
     attr_accessor :name, :purpose
     # @return [Hash]
-    attr_accessor :links
+    attr_accessor :links, :accountabilities, :domains, :people
     PATH = '/roles'
     PATCH_PATH = '/roles/0/links/people/'
     TYPE = :roles
+
+    LINK_TYPES = [:accountabilities, :domains, :people]
+
+    def build_link_objects(response, type)
+      link_objects = links[type].map do |link_id|
+        links = response[:linked][type]
+        attributes = links.detect { |link| link[:id] == link_id }
+        LinkFactory.build(type, attributes)
+      end
+      self.send("#{type}=", link_objects)
+    end
 
     # 
     # Sends a GET request for Role(s) to GlassFrog.
@@ -23,7 +35,11 @@ module Glassfrog
     # @return [Array<Glassfrog::Role>] The array of Role(s) fetched from GlassFrog.
     def self.get(client, options)
       response = Glassfrog::REST::Get.get(client, PATH, options)
-      response[TYPE].map { |object| self.new(object) }
+      response[TYPE].map do |object|
+        role = self.new(object)
+        LINK_TYPES.each { |type| role.build_link_objects(response, type) }
+        role
+      end
     end
 
     # 
