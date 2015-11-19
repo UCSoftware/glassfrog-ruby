@@ -18,14 +18,7 @@ module Glassfrog
 
     LINK_TYPES = [:accountabilities, :domains, :people]
 
-    def build_link_objects(response, type)
-      link_objects = links[type].map do |link_id|
-        links = response[:linked][type]
-        attributes = links.detect { |link| link[:id] == link_id }
-        LinkFactory.build(type, attributes)
-      end
-      self.send("#{type}=", link_objects)
-    end
+    LinkFactory.register(:roles, self)
 
     # 
     # Sends a GET request for Role(s) to GlassFrog.

@@ -39,5 +39,14 @@ module Glassfrog
       self.instance_variables.each { |var| hash[var.to_s.delete("@")] = self.instance_variable_get(var) }
       symbolize_keys(hash)
     end
+
+    def build_link_objects(response, type)
+      link_objects = links[type].map do |link_id|
+        links = response[:linked][type]
+        attributes = links.detect { |link| link[:id] == link_id }
+        LinkFactory.build(type, attributes)
+      end
+      self.send("#{type}=", link_objects)
+    end
   end
 end
