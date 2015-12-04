@@ -1,5 +1,7 @@
 require 'glassfrog/base'
 require 'glassfrog/rest/get'
+require 'glassfrog/role'
+require 'glassfrog/link_factory'
 
 module Glassfrog
   # 
@@ -15,7 +17,11 @@ module Glassfrog
     PATH = '/circles'
     TYPE = :circles
 
-    LINK_TYPES = [:roles]
+    LinkFactory.register(:roles, Role)
+
+    def link_types
+      [:roles]
+    end
 
     # 
     # Sends a GET request for Circle(s) to GlassFrog.
@@ -27,7 +33,7 @@ module Glassfrog
       response = Glassfrog::REST::Get.get(client, PATH, options)
       response[TYPE].map do |object|
         circle = self.new(object)
-        LINK_TYPES.each { |type| circle.build_link_objects(response, type) }
+        circle.build_link_objects(response)
         circle
       end
     end

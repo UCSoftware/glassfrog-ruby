@@ -8,7 +8,8 @@ module Glassfrog
 
     def self.build(link_type, attributes)
       klass = @@config[link_type]
-      klass.new(attributes)
+      object = klass.new(attributes)
+      object
     end
   end
 end

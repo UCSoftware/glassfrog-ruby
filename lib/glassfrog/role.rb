@@ -2,6 +2,9 @@ require 'glassfrog/base'
 require 'glassfrog/rest/get'
 require 'glassfrog/rest/patch'
 require 'glassfrog/link_factory'
+require 'glassfrog/accountability'
+require 'glassfrog/domain'
+require 'glassfrog/person'
 
 module Glassfrog
   # 
@@ -16,9 +19,13 @@ module Glassfrog
     PATCH_PATH = '/roles/0/links/people/'
     TYPE = :roles
 
-    LINK_TYPES = [:accountabilities, :domains, :people]
+    LinkFactory.register(:accountabilities, Accountability)
+    LinkFactory.register(:domains, Domain)
+    LinkFactory.register(:people, Person)
 
-    LinkFactory.register(:roles, self)
+    def link_types
+      [:accountabilities, :domains, :people]
+    end
 
     # 
     # Sends a GET request for Role(s) to GlassFrog.
@@ -30,7 +37,7 @@ module Glassfrog
       response = Glassfrog::REST::Get.get(client, PATH, options)
       response[TYPE].map do |object|
         role = self.new(object)
-        LINK_TYPES.each { |type| role.build_link_objects(response, type) }
+        role.build_link_objects(response)
         role
       end
     end

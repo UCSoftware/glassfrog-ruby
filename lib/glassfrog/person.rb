@@ -3,7 +3,6 @@ require 'glassfrog/rest/get'
 require 'glassfrog/rest/post'
 require 'glassfrog/rest/patch'
 require 'glassfrog/rest/delete'
-require 'glassfrog/link_factory'
 
 module Glassfrog
   # 
@@ -18,8 +17,6 @@ module Glassfrog
     attr_accessor :links
     PATH = '/people'
     TYPE = :people
-
-    LinkFactory.register(:people, self)
 
     # 
     # Sends a GET request for Person(s) to GlassFrog.

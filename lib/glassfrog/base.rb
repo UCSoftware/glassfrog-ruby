@@ -40,7 +40,13 @@ module Glassfrog
       symbolize_keys(hash)
     end
 
-    def build_link_objects(response, type)
+    def build_link_objects(response)
+      link_types.each do |type|
+        build_link_objects_with_type(response, type)
+      end
+    end
+
+    def build_link_objects_with_type(response, type)
       link_objects = links[type].map do |link_id|
         links = response[:linked][type]
         attributes = links.detect { |link| link[:id] == link_id }
