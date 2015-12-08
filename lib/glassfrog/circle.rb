@@ -1,5 +1,7 @@
 require 'glassfrog/base'
 require 'glassfrog/rest/get'
+require 'glassfrog/role'
+require 'glassfrog/link_factory'
 
 module Glassfrog
   # 
@@ -9,11 +11,17 @@ module Glassfrog
     # @return [String]
     attr_accessor :name, :short_name, :strategy
     # @return [Hash]
-    attr_accessor :links
+    attr_accessor :links, :roles
     # @return [Array<Glassfrog::Circle]
     attr_accessor :sub_circles
     PATH = '/circles'
     TYPE = :circles
+
+    LinkFactory.register(:roles, Role)
+
+    def link_types
+      [:roles]
+    end
 
     # 
     # Sends a GET request for Circle(s) to GlassFrog.
@@ -23,7 +31,11 @@ module Glassfrog
     # @return [Array<Glassfrog::Circle>] The array of Circle(s) fetched from GlassFrog.
     def self.get(client, options)
       response = Glassfrog::REST::Get.get(client, PATH, options)
-      response[TYPE].map { |object| self.new(object) }
+      response[TYPE].map do |object|
+        circle = self.new(object)
+        circle.build_link_objects(response)
+        circle
+      end
     end
   end
 end
